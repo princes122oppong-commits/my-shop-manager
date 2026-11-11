@@ -1,5 +1,6 @@
 import CONSTANTS from '../config/constants.js';
 import { getSupabaseClient } from './supabase.js';
+import { organizationService } from './organizationService.js';
 
 function mapCustomer(row) {
     return {
@@ -78,6 +79,7 @@ export const customerService = {
         const client = await getSupabaseClient();
         if (client) {
             const { data, error } = await client.from('customers').insert({
+                organization_id: organizationService.getCurrentOrganizationId(),
                 name: customerData.name,
                 email: customerData.email || null,
                 phone: customerData.phone,

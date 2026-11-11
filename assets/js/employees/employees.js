@@ -8,19 +8,19 @@ import { addAuditLog } from '../utils/helpers.js';
 import { formatCurrency } from '../utils/currency.js';
 import ROUTES, { checkAuth } from '../config/routes.js';
 
-document.addEventListener('DOMContentLoaded', () => {
-    checkAuth();
+document.addEventListener('DOMContentLoaded', async () => {
+    await checkAuth();
     renderSidebar(ROUTES.EMPLOYEES);
     renderNavbar('Employees');
-    loadEmployees();
+    await loadEmployees();
 
     document.getElementById('add-employee-btn')?.addEventListener('click', () => {
         openEmployeeModal();
     });
 });
 
-function loadEmployees() {
-    const employees = employeeService.getAll();
+async function loadEmployees() {
+    const employees = await employeeService.getAll();
 
     renderTable({
         containerId: 'employees-table-container',
@@ -49,8 +49,8 @@ function loadEmployees() {
     });
 }
 
-function openEmployeeModal(employeeId = null) {
-    const employee = employeeId ? employeeService.getById(employeeId) : null;
+async function openEmployeeModal(employeeId = null) {
+    const employee = employeeId ? await employeeService.getById(employeeId) : null;
     const isEdit = !!employee;
 
     const modal = createModal({
@@ -90,7 +90,7 @@ function openEmployeeModal(employeeId = null) {
                 <input type="number" step="0.01" id="employee-salary" class="form-control" value="${employee?.salary || ''}" required>
             </div>
         `,
-        onSubmit: (data, close) => {
+        onSubmit: async (data, close) => {
             const employeeData = {
                 name: data.employeeName,
                 email: data.employeeEmail,
@@ -101,17 +101,17 @@ function openEmployeeModal(employeeId = null) {
             };
 
             if (isEdit) {
-                employeeService.update(employeeId, employeeData);
+                await employeeService.update(employeeId, employeeData);
                 addAuditLog('Employee Updated', `Employee updated: ${employeeData.name}`);
                 showAlert('Employee updated successfully!', 'success');
             } else {
-                employeeService.create(employeeData);
+                await employeeService.create(employeeData);
                 addAuditLog('Employee Created', `New employee created: ${employeeData.name}`);
                 showAlert('Employee created successfully!', 'success');
             }
 
             close();
-            loadEmployees();
+            await loadEmployees();
         }
     });
 
@@ -120,12 +120,12 @@ function openEmployeeModal(employeeId = null) {
 
 window.editEmployee = (id) => openEmployeeModal(id);
 
-window.deleteEmployee = (id) => {
-    const employee = employeeService.getById(id);
+window.deleteEmployee = async (id) => {
+    const employee = await employeeService.getById(id);
     if (confirm(`Are you sure you want to delete "${employee.name}"?`)) {
-        employeeService.delete(id);
+        await employeeService.delete(id);
         addAuditLog('Employee Deleted', `Employee deleted: ${employee.name}`);
         showAlert('Employee deleted successfully!', 'success');
-        loadEmployees();
+        await loadEmployees();
     }
 };

@@ -1,35 +1,7 @@
-/* Products Page Styles */
-#products-table-container {
-    width: 100%;
-}
-
-.edit-product-btn,
-.delete-product-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius-sm);
-    transition: all var(--transition-fast);
-}
-
-.edit-product-btn {
-    background-color: var(--primary-light);
-    color: var(--primary);
-}
-
-.edit-product-btn:hover {
-    background-color: var(--primary);
-    color: white;
-}
-
-.delete-product-btn {
-    background-color: rgba(239, 68, 68, 0.1);
-    color: var(--danger);
-}
-
-.delete-product-btn:hover {
-    background-color: var(--danger);
-    color: white;
-}
+#products-table-container, #stock-levels-table { width: 100%; overflow-x: auto; }
+#products-table-container table, #stock-levels-table table { min-width: 720px; }
+.edit-product-btn, .delete-product-btn { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border: 1px solid transparent; border-radius: var(--radius-sm); transition: all var(--transition-fast); }
+.edit-product-btn { color: var(--primary); background: var(--primary-light); }
+.edit-product-btn:hover { color: #fff; background: var(--primary); transform: translateY(-1px); }
+.delete-product-btn { color: var(--danger); background: rgba(239,68,68,.09); }
+.delete-product-btn:hover { color: #fff; background: var(--danger); transform: translateY(-1px); }

@@ -16,16 +16,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     const start = new Date();
     start.setDate(start.getDate() - 30);
 
-    document.getElementById('report-start-date').value = start.toISOString().split('T')[0];
-    document.getElementById('report-end-date').value = end.toISOString().split('T')[0];
+    const startInput = document.getElementById('report-start-date');
+    const endInput = document.getElementById('report-end-date');
+
+    // The reports hub links to dedicated report pages and does not contain
+    // the sales report filter controls. Only load the inline report when
+    // those controls are present.
+    if (!startInput || !endInput) return;
+
+    startInput.value = start.toISOString().split('T')[0];
+    endInput.value = end.toISOString().split('T')[0];
 
     await loadReport();
     setupEventListeners();
 });
 
 async function loadReport() {
-    const startDate = document.getElementById('report-start-date').value;
-    const endDate = document.getElementById('report-end-date').value;
+    const startInput = document.getElementById('report-start-date');
+    const endInput = document.getElementById('report-end-date');
+    if (!startInput || !endInput) return;
+
+    const startDate = startInput.value;
+    const endDate = endInput.value;
 
     const sales = await reportService.getSalesReport(startDate, endDate);
 
@@ -62,8 +74,12 @@ function setupEventListeners() {
 }
 
 async function exportToCSV() {
-    const startDate = document.getElementById('report-start-date').value;
-    const endDate = document.getElementById('report-end-date').value;
+    const startInput = document.getElementById('report-start-date');
+    const endInput = document.getElementById('report-end-date');
+    if (!startInput || !endInput) return;
+
+    const startDate = startInput.value;
+    const endDate = endInput.value;
     const sales = await reportService.getSalesReport(startDate, endDate);
 
     if (sales.length === 0) {

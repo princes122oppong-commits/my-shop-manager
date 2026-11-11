@@ -1,18 +1,4 @@
-/* Inventory Page Styles */
-#stock-levels-table {
-    width: 100%;
-}
-
-#movement-history-list {
-    scrollbar-width: thin;
-    scrollbar-color: var(--border-color) transparent;
-}
-
-#movement-history-list::-webkit-scrollbar {
-    width: 6px;
-}
-
-#movement-history-list::-webkit-scrollbar-thumb {
-    background-color: var(--border-color);
-    border-radius: 3px;
-}
+#stock-levels-table { width: 100%; overflow-x: auto; }
+#movement-history-list { max-height: 460px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent; }
+#movement-history-list::-webkit-scrollbar { width: 7px; }
+#movement-history-list::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 99px; }

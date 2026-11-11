@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="assets/css/global.css">
     <link rel="stylesheet" href="assets/css/sidebar.css">
     <link rel="stylesheet" href="assets/css/navbar.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
@@ -19,6 +20,12 @@
                 <h2 style="font-weight: 600; font-size: 1.25rem; margin-bottom: 1.5rem;">Settings</h2>
                 
                 <div class="grid grid-cols-2 gap-4">
+                    <div class="card" id="subscription-card">
+                        <h3 style="font-weight: 600; font-size: 1.125rem; margin-bottom: .5rem;">Subscription</h3>
+                        <p id="subscription-plan" style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">Loading...</p>
+                        <p id="subscription-status" style="color: var(--text-muted); font-size: .875rem; margin-bottom: 1rem;"></p>
+                        <a href="index.html#pricing" class="btn btn-secondary">View plans</a>
+                    </div>
                     <!-- Store Settings -->
                     <div class="card">
                         <h3 style="font-weight: 600; font-size: 1.125rem; margin-bottom: 1.5rem;">Store Information</h3>

@@ -10,6 +10,9 @@ export function renderNavbar(title) {
     navbarContainer.innerHTML = `
         <nav class="navbar">
             <div class="navbar-left">
+                <button id="mobile-menu-toggle" class="mobile-menu-toggle" type="button" aria-label="Open navigation" aria-controls="sidebar-container" aria-expanded="false">
+                    <i data-lucide="menu"></i>
+                </button>
                 <h1 class="navbar-title">${title}</h1>
             </div>
             <div class="navbar-right">
@@ -28,6 +31,17 @@ export function renderNavbar(title) {
     `;
 
     // Bind theme toggle event
+    const menuBtn = document.getElementById('mobile-menu-toggle');
+    const sidebar = document.querySelector('.sidebar');
+    menuBtn?.addEventListener('click', () => {
+        const isOpen = sidebar?.classList.toggle('active') || false;
+        menuBtn.setAttribute('aria-expanded', String(isOpen));
+        menuBtn.setAttribute('aria-label', isOpen ? 'Close navigation' : 'Open navigation');
+        const icon = menuBtn.querySelector('i');
+        icon?.setAttribute('data-lucide', isOpen ? 'x' : 'menu');
+        if (window.lucide) window.lucide.createIcons();
+    });
+
     const themeBtn = document.getElementById('theme-toggle-btn');
     themeBtn?.addEventListener('click', () => {
         const activeTheme = document.documentElement.getAttribute('data-theme');

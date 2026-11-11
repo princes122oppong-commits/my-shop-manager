@@ -2,6 +2,8 @@ import CONSTANTS from '../config/constants.js';
 import { productService } from './productService.js';
 import { inventoryService } from './inventoryService.js';
 import { getSupabaseClient } from './supabase.js';
+import { organizationService } from './organizationService.js';
+import { subscriptionService } from './subscriptionService.js';
 
 function mapSale(row, items = []) {
     return {
@@ -93,6 +95,7 @@ export const salesService = {
     async createSale({ items, paymentMethod, customerName, cashier }) {
         const client = await getSupabaseClient();
         if (client) {
+            await subscriptionService.assertCanCreate('sale');
             const { data: authData } = await client.auth.getUser();
             const subtotal = items.reduce((sum, item) => sum + (Number(item.price) * Number(item.quantity)), 0);
             const settings = JSON.parse(localStorage.getItem(CONSTANTS.STORAGE_KEYS.SETTINGS)) || CONSTANTS.DEFAULT_SETTINGS;
@@ -103,6 +106,7 @@ export const salesService = {
             const payment = String(paymentMethod || 'cash').toLowerCase().replaceAll(' ', '_');
 
             const { data: sale, error: saleError } = await client.from('sales').insert({
+                organization_id: organizationService.getCurrentOrganizationId(),
                 sale_number: saleNumber,
                 customer_name: customerName || 'Walk-in Customer',
                 user_id: authData?.user?.id || null,
@@ -116,6 +120,7 @@ export const salesService = {
             if (saleError) throw saleError;
 
             const saleItems = items.map(item => ({
+                organization_id: organizationService.getCurrentOrganizationId(),
                 sale_id: sale.id,
                 product_id: item.productId,
                 product_name: item.name,

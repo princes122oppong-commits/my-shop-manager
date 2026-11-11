@@ -584,29 +584,65 @@ AS $$
     );
 $$;
 
+CREATE OR REPLACE FUNCTION public.has_any_role(allowed_roles TEXT[])
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+    SELECT EXISTS (
+        SELECT 1 FROM public.profiles
+        WHERE id = auth.uid()
+          AND is_active = true
+          AND role = ANY (allowed_roles)
+    );
+$$;
+
 DROP POLICY IF EXISTS "Allow public read access to products" ON public.products;
 DROP POLICY IF EXISTS "Allow authenticated users to manage products" ON public.products;
+DROP POLICY IF EXISTS "Authenticated users can view products" ON public.products;
+DROP POLICY IF EXISTS "Managers can manage products" ON public.products;
 DROP POLICY IF EXISTS "Allow users to view their own profile" ON public.profiles;
 DROP POLICY IF EXISTS "Allow users to create their own profile" ON public.profiles;
+DROP POLICY IF EXISTS "Allow users to update their own profile" ON public.profiles;
 DROP POLICY IF EXISTS "Allow admins to manage all profiles" ON public.profiles;
 DROP POLICY IF EXISTS "Allow authenticated users to view sales" ON public.sales;
 DROP POLICY IF EXISTS "Allow authenticated users to create sales" ON public.sales;
+DROP POLICY IF EXISTS "Authenticated users can view sales" ON public.sales;
+DROP POLICY IF EXISTS "Sales staff can create sales" ON public.sales;
+DROP POLICY IF EXISTS "Managers can update sales" ON public.sales;
+DROP POLICY IF EXISTS "Managers can delete sales" ON public.sales;
 DROP POLICY IF EXISTS "Allow authenticated users to create sale items" ON public.sale_items;
+DROP POLICY IF EXISTS "Authenticated users can view sale items" ON public.sale_items;
+DROP POLICY IF EXISTS "Sales staff can create sale items" ON public.sale_items;
 
-CREATE POLICY "Allow public read access to products" ON public.products FOR SELECT USING (true);
-CREATE POLICY "Allow authenticated users to manage products" ON public.products FOR ALL USING (auth.role() = 'authenticated');
+CREATE POLICY "Authenticated users can view products" ON public.products FOR SELECT TO authenticated USING (is_active = true);
+CREATE POLICY "Managers can manage products" ON public.products FOR ALL TO authenticated
+    USING (public.has_any_role(ARRAY['admin', 'manager', 'inventory_officer']))
+    WITH CHECK (public.has_any_role(ARRAY['admin', 'manager', 'inventory_officer']));
 CREATE POLICY "Allow users to view their own profile" ON public.profiles FOR SELECT USING (auth.uid() = id);
 CREATE POLICY "Allow users to create their own profile" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
+CREATE POLICY "Allow users to update their own profile" ON public.profiles FOR UPDATE
+    USING (auth.uid() = id)
+    WITH CHECK (auth.uid() = id);
 CREATE POLICY "Allow admins to manage all profiles" ON public.profiles FOR ALL USING (
     public.is_admin()
 );
-CREATE POLICY "Allow authenticated users to view sales" ON public.sales FOR SELECT USING (auth.role() = 'authenticated');
-CREATE POLICY "Allow authenticated users to create sales" ON public.sales FOR INSERT WITH CHECK (auth.role() = 'authenticated');
-CREATE POLICY "Allow authenticated users to create sale items" ON public.sale_items FOR INSERT WITH CHECK (auth.role() = 'authenticated');
-CREATE POLICY "Allow authenticated users to view sale items" ON public.sale_items FOR SELECT USING (auth.role() = 'authenticated');
+CREATE POLICY "Authenticated users can view sales" ON public.sales FOR SELECT TO authenticated USING (true);
+CREATE POLICY "Sales staff can create sales" ON public.sales FOR INSERT TO authenticated
+    WITH CHECK (public.has_any_role(ARRAY['admin', 'manager', 'cashier']));
+CREATE POLICY "Managers can update sales" ON public.sales FOR UPDATE TO authenticated
+    USING (public.has_any_role(ARRAY['admin', 'manager']))
+    WITH CHECK (public.has_any_role(ARRAY['admin', 'manager']));
+CREATE POLICY "Managers can delete sales" ON public.sales FOR DELETE TO authenticated
+    USING (public.has_any_role(ARRAY['admin', 'manager']));
+CREATE POLICY "Authenticated users can view sale items" ON public.sale_items FOR SELECT TO authenticated USING (true);
+CREATE POLICY "Sales staff can create sale items" ON public.sale_items FOR INSERT TO authenticated
+    WITH CHECK (public.has_any_role(ARRAY['admin', 'manager', 'cashier']));
 
--- Default authenticated-user access for operational tables. Tighten these policies
--- by role and branch before enabling multi-tenant production deployments.
+-- Default access for operational tables. Signed-in staff may read operational
+-- data, while writes are restricted to managers and administrators.
 DO $$
 DECLARE
     table_name TEXT;
@@ -620,13 +656,54 @@ BEGIN
         'coupons', 'settings', 'branches', 'user_branches'
     ] LOOP
         EXECUTE format('DROP POLICY IF EXISTS "Authenticated users can access %s" ON public.%I', table_name, table_name);
-        EXECUTE format('CREATE POLICY "Authenticated users can access %s" ON public.%I FOR ALL TO authenticated USING (true) WITH CHECK (true)', table_name, table_name);
+        EXECUTE format('DROP POLICY IF EXISTS "Authenticated users can view %s" ON public.%I', table_name, table_name);
+        EXECUTE format('DROP POLICY IF EXISTS "Managers can manage %s" ON public.%I', table_name, table_name);
+        EXECUTE format('CREATE POLICY "Authenticated users can view %s" ON public.%I FOR SELECT TO authenticated USING (true)', table_name, table_name);
+        EXECUTE format('CREATE POLICY "Managers can manage %s" ON public.%I FOR ALL TO authenticated USING (public.has_any_role(ARRAY[''admin'', ''manager''])) WITH CHECK (public.has_any_role(ARRAY[''admin'', ''manager'']))', table_name, table_name);
     END LOOP;
 END $$;
+
+-- Operational role exceptions used by the inventory and checkout screens.
+DROP POLICY IF EXISTS "Inventory staff can manage inventory" ON public.inventory;
+DROP POLICY IF EXISTS "Inventory staff can record movements" ON public.inventory_movements;
+DROP POLICY IF EXISTS "Cashiers can manage customers" ON public.customers;
+DROP POLICY IF EXISTS "Cashiers can update customers" ON public.customers;
+CREATE POLICY "Inventory staff can manage inventory" ON public.inventory FOR ALL TO authenticated
+    USING (public.has_any_role(ARRAY['admin', 'manager', 'inventory_officer']))
+    WITH CHECK (public.has_any_role(ARRAY['admin', 'manager', 'inventory_officer']));
+CREATE POLICY "Inventory staff can record movements" ON public.inventory_movements FOR INSERT TO authenticated
+    WITH CHECK (public.has_any_role(ARRAY['admin', 'manager', 'inventory_officer']));
+CREATE POLICY "Cashiers can manage customers" ON public.customers FOR INSERT TO authenticated
+    WITH CHECK (public.has_any_role(ARRAY['admin', 'manager', 'cashier']));
+CREATE POLICY "Cashiers can update customers" ON public.customers FOR UPDATE TO authenticated
+    USING (public.has_any_role(ARRAY['admin', 'manager', 'cashier']))
+    WITH CHECK (public.has_any_role(ARRAY['admin', 'manager', 'cashier']));
 
 -- ============================================
 -- FUNCTIONS & TRIGGERS
 -- ============================================
+
+-- Create a profile automatically when a Supabase Auth user signs up. This runs
+-- with controlled database privileges and also works when email confirmation is enabled.
+CREATE OR REPLACE FUNCTION public.handle_new_auth_user()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO public.profiles (id, email, full_name, role)
+    VALUES (
+        NEW.id,
+        NEW.email,
+        COALESCE(NEW.raw_user_meta_data ->> 'full_name', split_part(COALESCE(NEW.email, 'User'), '@', 1)),
+        'cashier'
+    )
+    ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+    AFTER INSERT ON auth.users
+    FOR EACH ROW EXECUTE FUNCTION public.handle_new_auth_user();
 
 -- Update inventory on sale
 CREATE OR REPLACE FUNCTION public.update_inventory_on_sale()

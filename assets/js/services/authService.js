@@ -1,5 +1,6 @@
 import CONSTANTS from '../config/constants.js';
 import { getSupabaseClient } from './supabase.js';
+import { organizationService } from './organizationService.js';
 
 export const authService = {
     init() {
@@ -49,6 +50,16 @@ export const authService = {
                 role: profile?.role || 'cashier'
             };
             localStorage.setItem(CONSTANTS.STORAGE_KEYS.CURRENT_USER, JSON.stringify(sessionUser));
+            const organizations = await organizationService.getMyOrganizations();
+            if (organizations.available && organizations.organizations.length > 0) {
+                const currentOrganization = organizations.organizations[0];
+                organizationService.setCurrentOrganization(currentOrganization);
+                // In hosted mode, organization membership is the source of
+                // truth for tenant permissions. Keep the profile role
+                // separate so users cannot self-promote through profile edits.
+                sessionUser.role = currentOrganization.role || sessionUser.role;
+                localStorage.setItem(CONSTANTS.STORAGE_KEYS.CURRENT_USER, JSON.stringify(sessionUser));
+            }
             return { success: true, user: sessionUser };
         }
 
@@ -77,15 +88,6 @@ export const authService = {
             });
             if (error) return { success: false, message: error.message };
 
-            if (data.user) {
-                const { error: profileError } = await client.from('profiles').insert({
-                    id: data.user.id,
-                    email: values.email,
-                    full_name: values.name,
-                    role: 'cashier'
-                });
-                if (profileError) return { success: false, message: profileError.message };
-            }
             return { success: true, user: data.user, confirmationRequired: !data.session };
         }
 

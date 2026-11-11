@@ -1,0 +1,11 @@
+body.auth-page { padding: 1rem; }
+.auth-card, .login-card, .register-card { width: 100%; max-width: 450px; }
+.onboarding-card { max-width: 500px; }
+
+@media (max-width: 480px) {
+    body.auth-page { align-items: flex-start; padding: .75rem; padding-top: 2rem; }
+    .auth-card, .login-card, .register-card { max-width: none; padding: 1.35rem !important; border-radius: 16px; }
+    .login-header { margin-bottom: 1.35rem !important; }
+    .login-logo { font-size: 2rem; }
+    .login-logo svg { width: 40px !important; height: 40px !important; }
+}

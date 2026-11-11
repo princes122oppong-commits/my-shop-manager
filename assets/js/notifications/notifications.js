@@ -1,23 +1,23 @@
 import { renderSidebar } from '../components/sidebar.js';
 import { renderNavbar } from '../components/navbar.js';
 import { notificationService } from '../services/notificationService.js';
-import { formatDateTime } from '../utils/formatter.js';
+import { formatDateTime } from '../utils/helpers.js';
 import ROUTES, { checkAuth } from '../config/routes.js';
 
-document.addEventListener('DOMContentLoaded', () => {
-    checkAuth();
+document.addEventListener('DOMContentLoaded', async () => {
+    await checkAuth();
     renderSidebar(ROUTES.NOTIFICATIONS);
     renderNavbar('Notifications');
-    loadNotifications();
+    await loadNotifications();
 
-    document.getElementById('mark-all-read-btn')?.addEventListener('click', () => {
-        notificationService.markAllAsRead();
-        loadNotifications();
+    document.getElementById('mark-all-read-btn')?.addEventListener('click', async () => {
+        await notificationService.markAllAsRead();
+        await loadNotifications();
     });
 });
 
-function loadNotifications() {
-    const notifications = notificationService.getAll();
+async function loadNotifications() {
+    const notifications = await notificationService.getAll();
     const container = document.getElementById('notifications-list-container');
 
     if (notifications.length === 0) {

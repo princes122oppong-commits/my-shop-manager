@@ -5,15 +5,34 @@ import { addAuditLog } from '../utils/helpers.js';
 import CONSTANTS from '../config/constants.js';
 import ROUTES, { checkAuth } from '../config/routes.js';
 import { configureSupabase, isSupabaseConfigured } from '../services/supabase.js';
+import { subscriptionService } from '../services/subscriptionService.js';
+import { RUNTIME_CONFIG } from '../config/runtime.js';
 
-document.addEventListener('DOMContentLoaded', () => {
-    checkAuth();
+document.addEventListener('DOMContentLoaded', async () => {
+    await checkAuth();
     renderSidebar(ROUTES.SETTINGS);
     renderNavbar('Settings');
     loadSettings();
     loadSupabaseSettings();
+    await loadSubscription();
     setupEventListeners();
 });
+
+async function loadSubscription() {
+    const plan = document.getElementById('subscription-plan');
+    const status = document.getElementById('subscription-status');
+    if (!plan || !status) return;
+    try {
+        const subscription = await subscriptionService.getCurrentPlan();
+        plan.textContent = subscription.name;
+        status.textContent = subscription.trial_ends_at
+            ? `Status: ${subscription.subscription_status}. Trial ends ${new Date(subscription.trial_ends_at).toLocaleDateString()}.`
+            : `Status: ${subscription.subscription_status}.`;
+    } catch {
+        plan.textContent = 'Offline mode';
+        status.textContent = 'Subscription information will appear after connecting your store.';
+    }
+}
 
 function loadSupabaseSettings() {
     const urlInput = document.getElementById('supabase-url');
@@ -21,7 +40,7 @@ function loadSupabaseSettings() {
     const status = document.getElementById('supabase-status');
     if (!urlInput || !keyInput || !status) return;
 
-    urlInput.value = localStorage.getItem('SUPABASE_URL') || '';
+    urlInput.value = localStorage.getItem('SUPABASE_URL') || RUNTIME_CONFIG.supabaseUrl || '';
     status.textContent = isSupabaseConfigured()
         ? 'Connected configuration found. Reloading after changes will use Supabase.'
         : 'Offline mode is active. Data is stored in this browser.';

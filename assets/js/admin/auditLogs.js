@@ -2,7 +2,7 @@ import { renderSidebar } from '../components/sidebar.js';
 import { renderNavbar } from '../components/navbar.js';
 import { renderTable } from '../components/table.js';
 import { getAuditLogs } from '../utils/helpers.js';
-import { formatDateTime } from '../utils/formatter.js';
+import { formatDateTime } from '../utils/helpers.js';
 import ROUTES, { checkAuth } from '../config/routes.js';
 
 document.addEventListener('DOMContentLoaded', () => {

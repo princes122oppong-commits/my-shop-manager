@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set Up Your Store - JoeTech Store Manager</title>
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/global.css">
+    <link rel="stylesheet" href="assets/css/auth.css">
+</head>
+<body class="auth-page">
+    <main class="card auth-card onboarding-card">
+        <div class="login-header">
+            <div class="login-logo"><i data-lucide="store"></i></div>
+            <h1 style="font-weight: 800; font-size: 1.6rem; margin-bottom: .4rem;">Set up your store</h1>
+            <p style="color: var(--text-muted); font-size: .9rem;">Create your workspace to start managing products, inventory, and sales.</p>
+        </div>
+        <form id="onboarding-form">
+            <div class="form-group">
+                <label class="form-label" for="store-name">Store name</label>
+                <input class="form-control" id="store-name" name="storeName" required maxlength="100" placeholder="e.g. JoeTech Electronics">
+            </div>
+            <button class="btn btn-primary" type="submit" style="width: 100%;">Create store <i data-lucide="arrow-right"></i></button>
+        </form>
+        <p id="onboarding-error" style="display: none; margin-top: 1rem; color: var(--danger); font-size: .85rem;"></p>
+    </main>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script type="module" src="assets/js/onboarding/onboarding.js"></script>
+</body>
+</html>

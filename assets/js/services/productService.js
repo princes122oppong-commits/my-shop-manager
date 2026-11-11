@@ -1,5 +1,7 @@
 import CONSTANTS from '../config/constants.js';
 import { getSupabaseClient } from './supabase.js';
+import { organizationService } from './organizationService.js';
+import { subscriptionService } from './subscriptionService.js';
 
 function mapProduct(row) {
     return {
@@ -30,7 +32,10 @@ async function resolveCategoryId(client, category) {
     if (!category || typeof category !== 'string') return null;
     const { data } = await client.from('categories').select('id').eq('name', category).maybeSingle();
     if (data?.id) return data.id;
-    const { data: created, error } = await client.from('categories').insert({ name: category }).select('id').single();
+    const { data: created, error } = await client.from('categories').insert({
+        name: category,
+        organization_id: organizationService.getCurrentOrganizationId()
+    }).select('id').single();
     if (error) throw error;
     return created.id;
 }
@@ -133,7 +138,9 @@ export const productService = {
     async create(productData) {
         const client = await getSupabaseClient();
         if (client) {
+            await subscriptionService.assertCanCreate('product');
             const { data, error } = await client.from('products').insert({
+                organization_id: organizationService.getCurrentOrganizationId(),
                 name: productData.name,
                 sku: productData.sku,
                 barcode: productData.barcode || null,

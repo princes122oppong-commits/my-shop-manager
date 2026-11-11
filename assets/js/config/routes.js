@@ -1,9 +1,12 @@
+import { getSupabaseClient, isSupabaseConfigured } from '../services/supabase.js';
+
 const ROUTES = {
     INDEX: 'index.html',
     LOGIN: 'login.html',
     REGISTER: 'register.html',
     FORGOT_PASSWORD: 'forgot-password.html',
     RESET_PASSWORD: 'reset-password.html',
+    ONBOARDING: 'onboarding.html',
     DASHBOARD: 'dashboard.html',
     PRODUCTS: 'products.html',
     PRODUCT_CATEGORIES: 'product-categories.html',
@@ -62,15 +65,39 @@ const ROUTES = {
     SYSTEM_ADMIN: 'system-admin.html'
 };
 
-export function checkAuth() {
+export async function checkAuth() {
     const currentUser = localStorage.getItem('joetech_current_user');
     const currentPage = window.location.pathname.split('/').pop();
+    const publicPage = currentPage === ROUTES.LOGIN || currentPage === 'index.html' || currentPage === '';
 
-    if (!currentUser && currentPage !== ROUTES.LOGIN && currentPage !== 'index.html' && currentPage !== '') {
-        window.location.href = ROUTES.LOGIN;
-    } else if (currentUser && (currentPage === ROUTES.LOGIN || currentPage === 'index.html' || currentPage === '')) {
-        window.location.href = ROUTES.DASHBOARD;
+    if (isSupabaseConfigured()) {
+        const client = await getSupabaseClient();
+        const { data } = client ? await client.auth.getSession() : { data: { session: null } };
+        const hasSession = Boolean(data?.session);
+
+        if (!hasSession && !publicPage) {
+            localStorage.removeItem('joetech_current_user');
+            window.location.href = ROUTES.LOGIN;
+            return false;
+        }
+
+        if (hasSession && publicPage) {
+            window.location.href = ROUTES.DASHBOARD;
+            return false;
+        }
+
+        return hasSession || publicPage;
     }
+
+    if (!currentUser && !publicPage) {
+        window.location.href = ROUTES.LOGIN;
+        return false;
+    } else if (currentUser && publicPage) {
+        window.location.href = ROUTES.DASHBOARD;
+        return false;
+    }
+
+    return true;
 }
 
 export default ROUTES;

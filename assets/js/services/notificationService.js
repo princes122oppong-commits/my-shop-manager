@@ -1,4 +1,6 @@
 import CONSTANTS from '../config/constants.js';
+import { getSupabaseClient } from './supabase.js';
+import { organizationService } from './organizationService.js';
 
 export const notificationService = {
     init() {
@@ -26,16 +28,46 @@ export const notificationService = {
         }
     },
 
-    getAll() {
+    async getAll() {
+        const client = await getSupabaseClient();
+        if (client) {
+            const { data, error } = await client.from('notifications')
+                .select('*').order('created_at', { ascending: false });
+            if (error) throw error;
+            return (data || []).map(item => ({
+                id: item.id,
+                type: item.type,
+                title: item.title,
+                message: item.message,
+                data: item.data,
+                date: item.created_at,
+                read: item.is_read
+            }));
+        }
         this.init();
         return JSON.parse(localStorage.getItem(CONSTANTS.STORAGE_KEYS.NOTIFICATIONS) || '[]');
     },
 
-    getUnread() {
-        return this.getAll().filter(n => !n.read);
+    async getUnread() {
+        return (await this.getAll()).filter(n => !n.read);
     },
 
-    create(notification) {
+    async create(notification) {
+        const client = await getSupabaseClient();
+        if (client) {
+            const { data: userData } = await client.auth.getUser();
+            const { error } = await client.from('notifications').insert({
+                organization_id: organizationService.getCurrentOrganizationId(),
+                user_id: userData?.user?.id || null,
+                type: notification.type,
+                title: notification.title,
+                message: notification.message,
+                data: notification.data || null,
+                is_read: false
+            });
+            if (error) throw error;
+            return;
+        }
         this.init();
         const notifications = this.getAll();
         notifications.unshift({
@@ -47,7 +79,13 @@ export const notificationService = {
         localStorage.setItem(CONSTANTS.STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(notifications));
     },
 
-    markAsRead(id) {
+    async markAsRead(id) {
+        const client = await getSupabaseClient();
+        if (client) {
+            const { error } = await client.from('notifications').update({ is_read: true, read_at: new Date().toISOString() }).eq('id', id);
+            if (error) throw error;
+            return;
+        }
         this.init();
         const notifications = this.getAll();
         const notification = notifications.find(n => n.id === id);
@@ -57,7 +95,15 @@ export const notificationService = {
         }
     },
 
-    markAllAsRead() {
+    async markAllAsRead() {
+        const client = await getSupabaseClient();
+        if (client) {
+            const { data: userData } = await client.auth.getUser();
+            const { error } = await client.from('notifications').update({ is_read: true, read_at: new Date().toISOString() })
+                .eq('user_id', userData?.user?.id || '00000000-0000-0000-0000-000000000000');
+            if (error) throw error;
+            return;
+        }
         this.init();
         const notifications = this.getAll();
         notifications.forEach(n => n.read = true);

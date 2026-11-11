@@ -1,55 +1,38 @@
-/* Responsive Styles */
-@media (max-width: 1024px) {
-    :root {
-        --sidebar-width: 70px;
-    }
-
-    .sidebar-brand span,
-    .sidebar-link span,
-    .sidebar-logout span {
-        display: none;
-    }
-
-    .sidebar-brand {
-        justify-content: center;
-        padding: 0;
-    }
-
-    .sidebar-link,
-    .sidebar-logout {
-        justify-content: center;
-        padding: 0.75rem 0;
-    }
-
-    .main-content {
-        margin-left: var(--sidebar-width);
-    }
+@media (max-width: 1100px) {
+    :root { --sidebar-width: 78px; }
+    .sidebar-brand { justify-content: center; padding: 0; }
+    .sidebar-brand span, .sidebar-link span, .sidebar-logout span { display: none; }
+    .sidebar-link, .sidebar-logout { justify-content: center; padding-right: .7rem; padding-left: .7rem; }
+    .main-content { margin-left: var(--sidebar-width); }
+    .content-body { padding: 1.5rem; }
+}
+@media (max-width: 760px) {
+    :root { --navbar-height: 64px; }
+    .app-container { display: block; width: 100%; max-width: 100%; overflow-x: hidden; }
+    #sidebar-container { width: 0; height: 0; }
+    .main-content { width: 100%; max-width: 100%; margin-left: 0 !important; overflow-x: hidden; }
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.active { width: 264px; transform: translateX(0); }
+    .sidebar.active .sidebar-brand span, .sidebar.active .sidebar-link span, .sidebar.active .sidebar-logout span { display: inline; }
+    .navbar { width: 100%; max-width: 100%; padding: 0 .85rem; }
+    .navbar-left, .navbar-right { min-width: 0; }
+    .navbar-right { gap: .35rem; }
+    .user-info { display: none !important; }
+    .content-body { width: 100%; max-width: 100%; min-width: 0; padding: 1rem; overflow-x: hidden; }
+    .grid-cols-4, .grid-cols-3, .grid-cols-2 { grid-template-columns: 1fr !important; }
+    .card { min-width: 0; padding: 1.1rem; margin-bottom: 1rem; }
+    .card[style*="grid-column"] { grid-column: auto !important; }
+    #recent-sales-table { width: 100%; max-width: 100%; overflow: hidden; }
+    #recent-sales-table > div { width: 100% !important; max-width: 100%; overflow-x: auto; }
+    #recent-sales-table table { min-width: 520px; }
+    .stat-card { min-height: 92px; }
+    .mobile-menu-toggle { display: inline-flex !important; }
 }
 
-@media (max-width: 768px) {
-
-    .grid-cols-4,
-    .grid-cols-3,
-    .grid-cols-2 {
-        grid-template-columns: 1fr !important;
-    }
-
-    .main-content {
-        margin-left: 0;
-    }
-
-    .sidebar {
-        transform: translateX(-100%);
-    }
-
-    .sidebar.active {
-        transform: translateX(0);
-        width: 260px;
-    }
-
-    .sidebar.active .sidebar-brand span,
-    .sidebar.active .sidebar-link span,
-    .sidebar.active .sidebar-logout span {
-        display: inline;
-    }
+@media (max-width: 480px) {
+    .content-body { padding: .75rem; }
+    .navbar-title { font-size: .95rem; }
+    .stat-card { padding: 1rem; }
+    .stat-icon { width: 38px; height: 38px; }
+    .stat-value { font-size: 1.25rem; }
 }

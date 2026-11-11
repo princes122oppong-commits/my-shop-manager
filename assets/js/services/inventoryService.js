@@ -1,6 +1,7 @@
 import CONSTANTS from '../config/constants.js';
 import { productService } from './productService.js';
 import { getSupabaseClient } from './supabase.js';
+import { organizationService } from './organizationService.js';
 
 export const inventoryService = {
     init() {
@@ -62,6 +63,7 @@ export const inventoryService = {
             if (!product) return null;
             const { data: authData } = await client.auth.getUser();
             const { data, error } = await client.from('inventory_movements').insert({
+                organization_id: organizationService.getCurrentOrganizationId(),
                 product_id: productId,
                 type,
                 quantity: Number(quantity),

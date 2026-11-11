@@ -2,6 +2,7 @@ import { showAlert } from '../components/alert.js';
 import { authService } from '../services/authService.js';
 import { addAuditLog } from '../utils/helpers.js';
 import ROUTES from '../config/routes.js';
+import { organizationService } from '../services/organizationService.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('login-form');
@@ -18,8 +19,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (result.success) {
             addAuditLog('User Login', `User logged in: ${result.user.name} (${result.user.email})`);
             showAlert('Login successful! Redirecting...', 'success');
-            setTimeout(() => {
-                window.location.href = ROUTES.DASHBOARD;
+            setTimeout(async () => {
+                const organizations = await organizationService.getMyOrganizations();
+                window.location.href = organizations.available && organizations.organizations.length === 0
+                    ? ROUTES.ONBOARDING
+                    : ROUTES.DASHBOARD;
             }, 1000);
         } else {
             showAlert(result.message, 'error');
