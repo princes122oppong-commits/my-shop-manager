@@ -1,0 +1,14 @@
+{
+  "name": "joetech-store-manager",
+  "version": "1.0.0",
+  "private": true,
+  "description": "JoeTech Store Manager retail and point-of-sale application",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "check": "node --check server.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POS / Sales - JoeTech Store Manager</title>
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/global.css">
+    <link rel="stylesheet" href="assets/css/sidebar.css">
+    <link rel="stylesheet" href="assets/css/navbar.css">
+    <link rel="stylesheet" href="assets/css/sales.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <div id="sidebar-container"></div>
+        <div class="main-content">
+            <div id="navbar-container"></div>
+            <div class="content-body" style="padding: 1.5rem;">
+                <!-- POS Layout Grid -->
+                <div class="grid grid-cols-3 gap-4" style="height: calc(100vh - var(--navbar-height) - 4rem);">
+                    <!-- Left: Product Selection -->
+                    <div class="card flex flex-col" style="grid-column: span 2; height: 100%; margin-bottom: 0;">
+                        <div class="flex gap-2" style="margin-bottom: 1rem;">
+                            <input type="text" id="pos-search" class="form-control"
+                                placeholder="Search by name, SKU, or scan barcode...">
+                            <button id="barcode-scan-sim-btn" class="btn btn-secondary" title="Simulate Barcode Scan">
+                                <i data-lucide="scan-barcode"></i>
+                            </button>
+                        </div>
+                        <div id="pos-products-grid" class="grid grid-cols-3 gap-3"
+                            style="flex: 1; overflow-y: auto; align-content: start; padding-right: 0.25rem;">
+                            <!-- Dynamic products -->
+                        </div>
+                    </div>
+
+                    <!-- Right: Cart & Checkout -->
+                    <div class="card flex flex-col" style="height: 100%; margin-bottom: 0; padding: 1.25rem;">
+                        <h3
+                            style="font-weight: 600; font-size: 1.125rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+                            Current Cart</h3>
+
+                        <!-- Cart Items List -->
+                        <div id="cart-items-list" class="flex flex-col gap-3"
+                            style="flex: 1; overflow-y: auto; padding-right: 0.25rem; margin-bottom: 1rem;">
+                            <!-- Dynamic cart items -->
+                        </div>
+
+                        <!-- Cart Summary -->
+                        <div style="border-top: 1px solid var(--border-color); padding-top: 1rem; margin-bottom: 1rem;">
+                            <div class="flex justify-between"
+                                style="margin-bottom: 0.5rem; font-size: 0.875rem; color: var(--text-muted);">
+                                <span>Subtotal</span>
+                                <span id="cart-subtotal">$0.00</span>
+                            </div>
+                            <div class="flex justify-between"
+                                style="margin-bottom: 0.5rem; font-size: 0.875rem; color: var(--text-muted);">
+                                <span>Tax</span>
+                                <span id="cart-tax">$0.00</span>
+                            </div>
+                            <div class="flex justify-between"
+                                style="font-weight: 700; font-size: 1.25rem; color: var(--text-main); margin-top: 0.5rem; border-top: 1px dashed var(--border-color); padding-top: 0.5rem;">
+                                <span>Total</span>
+                                <span id="cart-total">$0.00</span>
+                            </div>
+                        </div>
+
+                        <!-- Customer & Payment -->
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label class="form-label" style="font-size: 0.75rem;">Customer Name</label>
+                            <input type="text" id="cart-customer" class="form-control" style="padding: 0.5rem;"
+                                placeholder="Walk-in Customer">
+                        </div>
+
+                        <button id="checkout-btn" class="btn btn-primary"
+                            style="width: 100%; padding: 0.75rem; font-weight: 600;">
+                            <i data-lucide="credit-card"></i>
+                            <span>Proceed to Checkout</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="assets/js/sales/pos.js"></script>
+</body>
+
+</html>

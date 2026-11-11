@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - JoeTech Store Manager</title>
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/global.css">
+    <link rel="stylesheet" href="assets/css/sidebar.css">
+    <link rel="stylesheet" href="assets/css/navbar.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="app-container">
+        <div id="sidebar-container"></div>
+        <div class="main-content">
+            <div id="navbar-container"></div>
+            <div class="content-body">
+                <div class="flex justify-between items-center" style="margin-bottom: 1.5rem;">
+                    <h2 style="font-weight: 600; font-size: 1.25rem;">Notifications</h2>
+                    <button id="mark-all-read-btn" class="btn btn-secondary">
+                        <i data-lucide="check-check"></i>
+                        <span>Mark All as Read</span>
+                    </button>
+                </div>
+                <div class="card">
+                    <div id="notifications-list-container" class="flex flex-col gap-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="assets/js/notifications/notifications.js"></script>
+</body>
+</html>

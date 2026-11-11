@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joetech Store Manager - Premium Retail Management & POS Software</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --navy-dark: #0F172A;
+            --white: #FFFFFF;
+            --primary-blue: #2563EB;
+            --primary-hover: #1D4ED8;
+            --emerald-green: #10B981;
+            --light-gray: #F8FAFC;
+            --border-color: #E2E8F0;
+            --text-main: #1E293B;
+            --text-muted: #64748B;
+            --font-sans: 'Inter', sans-serif;
+            --font-heading: 'Poppins', sans-serif;
+            --radius-lg: 20px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            color: var(--text-main);
+            background-color: var(--white);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-heading);
+            color: var(--navy-dark);
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            transition: var(--transition);
+            padding: 1.25rem 0;
+            background: transparent;
+        }
+
+        .navbar.scrolled {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.85rem 0;
+        }
+
+        .nav-link {
+            position: relative;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            padding: 0.5rem 0;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-blue), #3B82F6);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-blue);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-family: var(--font-heading);
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--navy-dark);
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, #3B82F6 100%);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2.5rem;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            color: var(--primary-blue);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.875rem 2rem;
+            font-weight: 600;
+            font-size: 1rem;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            transition: var(--transition);
+            cursor: pointer;
+            border: none;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+            opacity: 0;
+            transition: var(--transition);
+            z-index: -1;
+        }
+
+        .btn:hover::before {
+            opacity: 1;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, #3B82F6 100%);
+            color: white;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3), 0 0 0 0 rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1D4ED8 0%, var(--primary-blue) 100%);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4), 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn-secondary {
+            background-color: var(--white);
+            color: var(--navy-dark);
+            border: 2px solid var(--border-color);
+            font-weight: 600;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--light-gray);
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn-text {
+            color: var(--navy-dark);
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .btn-text:hover {
+            color: var(--primary-blue);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 10rem 0 6rem 0;
+            background: radial-gradient(circle at 90% 10%, rgba(37, 99, 235, 0.06) 0%, transparent 50%),
+                        radial-gradient(circle at 10% 90%, rgba(16, 185, 129, 0.04) 0%, transparent 50%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%233B82F6' fill-opacity='0.015'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 1.2fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .hero-title {
+            font-size: 3.75rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.75rem;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, var(--navy-dark) 0%, var(--text-main) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-title span {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, #60A5FA 50%, #3B82F6 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+            line-height: 1.7;
+            max-width: 90%;
+            font-weight: 400;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .hero-badges {
+            display: flex;
+            gap: 2rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1.75rem;
+            flex-wrap: wrap;
+        }
+
+        .hero-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
+
+        .hero-badge:hover {
+            color: var(--navy-dark);
+        }
+
+        .hero-badge i {
+            color: var(--emerald-green);
+        }
+
+        /* Dashboard Mockup */
+        .dashboard-mockup {
+            background: linear-gradient(145deg, #1E293B 0%, #0F172A 100%);
+            border-radius: var(--radius-lg);
+            padding: 0.75rem;
+            box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.5),
+                        0 0 0 1px rgba(255, 255, 255, 0.1),
+                        inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            transform: perspective(1000px) rotateY(-5deg) rotateX(5deg);
+            transition: transform 0.6s ease;
+        }
+
+        .dashboard-mockup:hover {
+            transform: perspective(1000px) rotateY(0deg) rotateX(0deg);
+        }
+
+        .dashboard-mockup::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        }
+
+        .mockup-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.5rem 0.75rem 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .dot-red { background-color: #EF4444; }
+        .dot-yellow { background-color: #F59E0B; }
+        .dot-green { background-color: #10B981; }
+
+        .mockup-body {
+            display: flex;
+            height: 380px;
+            background-color: #0B0F19;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+
+        .mockup-sidebar {
+            width: 70px;
+            background-color: #0F172A;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.5rem 0;
+            gap: 1.5rem;
+        }
+
+        .sidebar-icon {
+            color: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .sidebar-icon.active, .sidebar-icon:hover {
+            color: var(--primary-blue);
+        }
+
+        .mockup-content {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .mockup-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .mockup-stat-card {
+            background-color: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+        }
+
+        .mockup-stat-label {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.4);
+            font-weight: 500;
+        }
+
+        .mockup-stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: white;
+            margin-top: 0.25rem;
+        }
+
+        .mockup-chart-container {
+            background-color: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .mockup-chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .mockup-chart-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .mockup-chart-bars {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            height: 120px;
+            padding-top: 1rem;
+        }
+
+        .mockup-chart-bar {
+            width: 24px;
+            background: linear-gradient(to top, var(--primary-blue), #3B82F6);
+            border-radius: 4px 4px 0 0;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .mockup-chart-bar:hover {
+            background: linear-gradient(to top, var(--emerald-green), #34D399);
+        }
+
+        /* Trusted By Section */
+        .trusted-by {
+            padding: 5rem 0;
+            background: linear-gradient(180deg, var(--white) 0%, var(--light-gray) 100%);
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+            position: relative;
+        }
+
+        .trusted-by::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-blue), #3B82F6);
+            border-radius: 2px;
+        }
+
+        .trusted-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-bottom: 2.5rem;
+            font-family: var(--font-heading);
+        }
+
+        .trusted-logos {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2.5rem;
+            opacity: 0.6;
+            transition: var(--transition);
+        }
+
+        .trusted-logos:hover {
+            opacity: 1;
+        }
+
+        .trusted-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: var(--navy-dark);
+            transition: var(--transition);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+        }
+
+        .trusted-logo:hover {
+            color: var(--primary-blue);
+            transform: translateY(-2px);
+        }
+
+        /* Feature Cards */
+        .feature-card {
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.03) 0%, transparent 100%);
+            border-radius: var(--radius-lg);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 0;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1), 0 0 0 1px rgba(37, 99, 235, 0.1);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-card > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Step Cards */
+        .step-card {
+            text-align: center;
+            position: relative;
+            padding: 2rem;
+            transition: var(--transition);
+        }
+
+        .step-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .step-number {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--primary-blue) 0%, #3B82F6 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin: 0 auto 1.5rem auto;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-number::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-blue), #3B82F6);
+            opacity: 0.2;
+            z-index: -1;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.2; }
+            50% { transform: scale(1.1); opacity: 0.1; }
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 3rem;
+            position: relative;
+            align-items: start;
+        }
+
+        .step-card::before {
+            content: '';
+            position: absolute;
+            top: 40px;
+            left: 60%;
+            width: 80%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--border-color), transparent);
+            z-index: 0;
+        }
+
+        .step-card:last-child::before {
+            display: none;
+        }
+
+        .step-card h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: var(--navy-dark);
+        }
+
+        .step-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* FAQ */
+        .faq-item {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .faq-item:hover {
+            border-color: rgba(37, 99, 235, 0.2);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+        }
+
+        .faq-trigger {
+            width: 100%;
+            text-align: left;
+            padding: 1.5rem 2rem;
+            background: none;
+            border: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--navy-dark);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .faq-trigger:hover {
+            color: var(--primary-blue);
+        }
+
+        /* Responsive */
+        .hero-grid {
+            grid-template-columns: 1fr;
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+            .steps-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .step-card::before {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar" id="navbar">
+        <div class="container nav-container">
+            <a href="#" class="logo">
+                <div class="logo-icon">
+                    <i data-lucide="cpu" style="width: 20px; height: 20px;"></i>
+                </div>
+                <span>Joetech Store</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="#" class="nav-link">Home</a></li>
+                <li><a href="#features" class="nav-link">Features</a></li>
+                <li><a href="#solutions" class="nav-link">Solutions</a></li>
+                <li><a href="#pricing" class="nav-link">Pricing</a></li>
+                <li><a href="#faq" class="nav-link">FAQ</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="login.html" class="btn-text">Login</a>
+                <a href="login.html" class="btn btn-primary">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container hero-grid">
+            <div class="hero-content">
+                <h1 class="hero-title">Manage Your Entire Store From One <span>Powerful Dashboard</span></h1>
+                <p class="hero-subtitle">
+                    Joetech Store Manager helps businesses manage inventory, process sales, monitor stock, print receipts, track expenses, manage employees, and generate real-time reports—all in one secure platform.
+                </p>
+                <div class="hero-buttons">
+                    <a href="login.html" class="btn btn-primary" style="padding: 0.85rem 2rem; font-size: 1rem;">Start Free Trial</a>
+                    <a href="login.html" class="btn btn-secondary" style="padding: 0.85rem 2rem; font-size: 1rem;">Book a Demo</a>
+                </div>
+                <div class="hero-badges">
+                    <div class="hero-badge">
+                        <i data-lucide="check-circle" style="width: 18px; height: 18px;"></i>
+                        <span>No credit card required</span>
+                    </div>
+                    <div class="hero-badge">
+                        <i data-lucide="check-circle" style="width: 18px; height: 18px;"></i>
+                        <span>Secure cloud-based</span>
+                    </div>
+                    <div class="hero-badge">
+                        <i data-lucide="check-circle" style="width: 18px; height: 18px;"></i>
+                        <span>Real-time updates</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="dashboard-mockup">
+                    <div class="mockup-header">
+                        <div class="dot dot-red"></div>
+                        <div class="dot dot-yellow"></div>
+                        <div class="dot dot-green"></div>
+                        <span style="color: rgba(255, 255, 255, 0.3); font-size: 0.75rem; margin-left: 1rem; font-family: monospace;">dashboard.joetech.com</span>
+                    </div>
+                    <div class="mockup-body">
+                        <div class="mockup-sidebar">
+                            <i data-lucide="layout-dashboard" class="sidebar-icon active" style="width: 20px; height: 20px;"></i>
+                            <i data-lucide="package" class="sidebar-icon" style="width: 20px; height: 20px;"></i>
+                            <i data-lucide="shopping-cart" class="sidebar-icon" style="width: 20px; height: 20px;"></i>
+                            <i data-lucide="users" class="sidebar-icon" style="width: 20px; height: 20px;"></i>
+                            <i data-lucide="bar-chart-3" class="sidebar-icon" style="width: 20px; height: 20px;"></i>
+                        </div>
+                        <div class="mockup-content">
+                            <div class="mockup-stats">
+                                <div class="mockup-stat-card">
+                                    <div class="mockup-stat-label">REVENUE</div>
+                                    <div class="mockup-stat-value">$12,450</div>
+                                </div>
+                                <div class="mockup-stat-card">
+                                    <div class="mockup-stat-label">SALES</div>
+                                    <div class="mockup-stat-value">142</div>
+                                </div>
+                                <div class="mockup-stat-card">
+                                    <div class="mockup-stat-label">LOW STOCK</div>
+                                    <div class="mockup-stat-value" style="color: #EF4444;">3</div>
+                                </div>
+                            </div>
+                            <div class="mockup-chart-container">
+                                <div class="mockup-chart-header">
+                                    <span class="mockup-chart-title">Weekly Sales Trend</span>
+                                    <span style="font-size: 0.75rem; color: var(--emerald-green); font-weight: 600;">+12.5% ↑</span>
+                                </div>
+                                <div class="mockup-chart-bars">
+                                    <div class="mockup-chart-bar" style="height: 40%;"></div>
+                                    <div class="mockup-chart-bar" style="height: 60%;"></div>
+                                    <div class="mockup-chart-bar" style="height: 50%;"></div>
+                                    <div class="mockup-chart-bar" style="height: 80%;"></div>
+                                    <div class="mockup-chart-bar" style="height: 70%;"></div>
+                                    <div class="mockup-chart-bar" style="height: 95%;"></div>
+                                    <div class="mockup-chart-bar" style="height: 85%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trusted By Section -->
+    <section class="trusted-by">
+        <div class="container">
+            <h3 class="trusted-title">Trusted by businesses to simplify daily operations</h3>
+            <div class="trusted-logos">
+                <div class="trusted-logo"><i data-lucide="shopping-bag"></i> Supermarkets</div>
+                <div class="trusted-logo"><i data-lucide="pill"></i> Pharmacies</div>
+                <div class="trusted-logo"><i data-lucide="smartphone"></i> Electronics</div>
+                <div class="trusted-logo"><i data-lucide="shirt"></i> Fashion Shops</div>
+                <div class="trusted-logo"><i data-lucide="book-open"></i> Bookstores</div>
+                <div class="trusted-logo"><i data-lucide="wrench"></i> Hardware</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features" style="padding: 8rem 0; background-color: var(--white);">
+        <div class="container">
+            <div style="text-align: center; max-width: 700px; margin: 0 auto 5rem auto;">
+                <span style="color: var(--primary-blue); font-weight: 700; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em;">Features</span>
+                <h2 style="font-size: 2.5rem; font-weight: 800; margin-top: 0.5rem; margin-bottom: 1rem; line-height: 1.2;">Everything You Need to Run Your Store</h2>
+                <p style="color: var(--text-muted); font-size: 1.125rem;">A complete suite of tools designed to automate your daily operations, reduce human error, and maximize profitability.</p>
+            </div>
+            <div class="features-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
+                <!-- Card 1 -->
+                <div class="card feature-card" style="padding: 2rem; border: 1px solid var(--border-color); border-radius: var(--radius-lg); transition: var(--transition); background-color: var(--white);">
+                    <div class="feature-icon" style="width: 48px; height: 48px; background-color: rgba(37, 99, 235, 0.08); color: var(--primary-blue); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                        <i data-lucide="boxes" style="width: 24px; height: 24px;"></i>
+                    </div>
+                    <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">Inventory Management</h3>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">Track stock levels, receive low-stock alerts, and monitor inventory in real time across all branches.</p>
+                </div>
+                <!-- Card 2 -->
+                <div class="card feature-card" style="padding: 2rem; border: 1px solid var(--border-color); border-radius: var(--radius-lg); transition: var(--transition); background-color: var(--white);">
+                    <div class="feature-icon" style="width: 48px; height: 48px; background-color: rgba(16, 185, 129, 0.08); color: var(--emerald-green); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                        <i data-lucide="shopping-cart" style="width: 24px; height: 24px;"></i>
+                    </div>
+                    <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">Point of Sale (POS)</h3>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">Complete sales quickly with an intuitive POS system, multiple payment methods, and printable receipts.</p>
+                </div>
+                <!-- Card 3 -->
+                <div class="card feature-card" style="padding: 2rem; border: 1px solid var(--border-color); border-radius: var(--radius-lg); transition: var(--transition); background-color: var(--white);">
+                    <div class="feature-icon" style="width: 48px; height: 48px; background-color: rgba(37, 99, 235, 0.08); color: var(--primary-blue); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                        <i data-lucide="package" style="width: 24px; height: 24px;"></i>
+                    </div>
+                    <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">Product Management</h3>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">Add, edit, organize, and categorize products with barcode support and custom pricing rules.</p>
+                </div>
+                <!-- Card 4 -->
+                <div class="card feature-card" style="padding: 2rem; border: 1px solid var(--border-color); border-radius: var(--radius-lg); transition: var(--transition); background-color: var(--white);">
+                    <div class="feature-icon" style="width: 48px; height: 48px; background-color: rgba(16, 185, 129, 0.08); color: var(--emerald-green); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                        <i data-lucide="users" style="width: 24px; height: 24px;"></i>
+                    </div>
+                    <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">Customer Management</h3>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">Maintain customer profiles, purchase history, loyalty points, and targeted marketing campaigns.</p>
+                </div>
+                <!-- Card 5 -->
+                <div class="card feature-card" style="padding: 2rem; border: 1px solid var(--border-color); border-radius: var(--radius-lg); transition: var(--transition); background-color: var(--white);">
+                    <div class="feature-icon" style="width: 48px; height: 48px; background-color: rgba(37, 99, 235, 0.08); color: var(--primary-blue); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                        <i data-lucide="truck" style="width: 24px; height: 24px;"></i>
+                    </div>
+                    <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">Supplier Management</h3>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">Manage suppliers, purchase orders, restocking schedules, and track supplier performance metrics.</p>
+                </div>
+                <!-- Card 6 -->
+                <div class="card feature-card" style="padding: 2rem; border: 1px solid var(--border-color); border-radius: var(--radius-lg); transition: var(--transition); background-color: var(--white);">
+                    <div class="feature-icon" style="width: 48px; height: 48px; background-color: rgba(16, 185, 129, 0.08); color: var(--emerald-green); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                        <i data-lucide="user-check" style="width: 24px; height: 24px;"></i>
+                    </div>
+                    <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">Employee Management</h3>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">Assign roles and permissions, track sales performance, and monitor staff login activity.</p>
+                </div>
+                <!-- Card 7 -->
+                <div class="card feature-card" style="padding: 2rem; border: 1px solid var(--border-color); border-radius: var(--radius-lg); transition: var(--transition); background-color: var(--white);">
+                    <div class="feature-icon" style="width: 48px; height: 48px; background-color: rgba(37, 99, 235, 0.08); color: var(--primary-blue); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                        <i data-lucide="bar-chart-3" style="width: 24px; height: 24px;"></i>
+                    </div>
+                    <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">Reports & Analytics</h3>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">View detailed sales, profit, expense, and inventory reports with interactive charts and CSV export.</p>
+                </div>
+                <!-- Card 8 -->
+                <div class="card feature-card" style="padding: 2rem; border: 1px solid var(--border-color); border-radius: var(--radius-lg); transition: var(--transition); background-color: var(--white);">
+                    <div class="feature-icon" style="width: 48px; height: 48px; background-color: rgba(16, 185, 129, 0.08); color: var(--emerald-green); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                        <i data-lucide="receipt" style="width: 24px; height: 24px;"></i>
+                    </div>
+                    <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">Expense Tracking</h3>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">Track operational expenses, rent, utilities, and salaries to monitor overall business profitability.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Software Screenshots Section -->
+    <section id="solutions" class="screenshots" style="padding: 8rem 0; background-color: var(--light-gray); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+        <div class="container">
+            <div style="text-align: center; max-width: 700px; margin: 0 auto 5rem auto;">
+                <span style="color: var(--primary-blue); font-weight: 700; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em;">Product Tour</span>
+                <h2 style="font-size: 2.5rem; font-weight: 800; margin-top: 0.5rem; margin-bottom: 1rem; line-height: 1.2;">Explore the Interface</h2>
+                <p style="color: var(--text-muted); font-size: 1.125rem;">Take a look at the clean, modern, and intuitive interface designed to make store management a breeze.</p>
+            </div>
+            
+            <!-- Tabs for Screenshots -->
+            <div class="screenshot-tabs" style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 3rem; flex-wrap: wrap;">
+                <button class="tab-btn active" onclick="switchTab('dashboard')" style="padding: 0.75rem 1.5rem; font-weight: 600; border-radius: 9999px; background-color: var(--primary-blue); color: white; border: none; cursor: pointer; transition: var(--transition);">Dashboard</button>
+                <button class="tab-btn" onclick="switchTab('pos')" style="padding: 0.75rem 1.5rem; font-weight: 600; border-radius: 9999px; background-color: var(--white); color: var(--text-muted); border: 1px solid var(--border-color); cursor: pointer; transition: var(--transition);">POS Screen</button>
+                <button class="tab-btn" onclick="switchTab('products')" style="padding: 0.75rem 1.5rem; font-weight: 600; border-radius: 9999px; background-color: var(--white); color: var(--text-muted); border: 1px solid var(--border-color); cursor: pointer; transition: var(--transition);">Products</button>
+                <button class="tab-btn" onclick="switchTab('inventory')" style="padding: 0.75rem 1.5rem; font-weight: 600; border-radius: 9999px; background-color: var(--white); color: var(--text-muted); border: 1px solid var(--border-color); cursor: pointer; transition: var(--transition);">Inventory</button>
+                <button class="tab-btn" onclick="switchTab('reports')" style="padding: 0.75rem 1.5rem; font-weight: 600; border-radius: 9999px; background-color: var(--white); color: var(--text-muted); border: 1px solid var(--border-color); cursor: pointer; transition: var(--transition);">Reports</button>
+            </div>
+
+            <!-- Screenshot Display Frame -->
+            <div class="screenshot-frame" style="background-color: var(--navy-dark); border-radius: var(--radius-lg); padding: 1rem; box-shadow: var(--shadow-lg); border: 1px solid rgba(255, 255, 255, 0.1); max-width: 1000px; margin: 0 auto;">
+                <div class="mockup-header" style="margin-bottom: 1rem;">
+                    <div class="dot dot-red"></div>
+                    <div class="dot dot-yellow"></div>
+                    <div class="dot dot-green"></div>
+                </div>
+                <div id="screenshot-img-container" style="border-radius: var(--radius-md); overflow: hidden; background-color: #0B0F19; height: 500px; display: flex; align-items: center; justify-content: center; position: relative;">
+                    <!-- Fallback to beautiful Unsplash images representing each screen -->
+                    <img id="screenshot-img" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1000&q=80" alt="Dashboard Tour" style="width: 100%; height: 100%; object-fit: cover; transition: var(--transition);">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works" style="padding: 8rem 0; background-color: var(--white);">
+        <div class="container">
+            <div style="text-align: center; max-width: 700px; margin: 0 auto 5rem auto;">
+                <span style="color: var(--primary-blue); font-weight: 700; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em;">Simple Setup</span>
+                <h2 style="font-size: 2.5rem; font-weight: 800; margin-top: 0.5rem; margin-bottom: 1rem; line-height: 1.2;">How It Works</h2>
+                <p style="color: var(--text-muted); font-size: 1.125rem;">Get up and running in minutes with our streamlined onboarding process.</p>
+            </div>
+            <div class="steps-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 3rem; position: relative;">
+                <!-- Step 1 -->
+                <div class="step-card" style="text-align: center; position: relative;">
+                    <div class="step-number" style="width: 64px; height: 64px; background-color: var(--primary-blue); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; margin: 0 auto 1.5rem auto; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);">1</div>
+                    <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">Set Up Store</h3>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">Create your account, configure your store settings, tax rates, and add your products or import them via CSV.</p>
+                </div>
+                <!-- Step 2 -->
+                <div class="step-card" style="text-align: center; position: relative;">
+                    <div class="step-number" style="width: 64px; height: 64px; background-color: var(--emerald-green); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; margin: 0 auto 1.5rem auto; box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);">2</div>
+                    <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">Manage & Sell</h3>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">Process sales instantly using the intuitive POS interface, scan barcodes, and manage stock levels automatically.</p>
+                </div>
+                <!-- Step 3 -->
+                <div class="step-card" style="text-align: center; position: relative;">
+                    <div class="step-number" style="width: 64px; height: 64px; background-color: var(--navy-dark); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; margin: 0 auto 1.5rem auto; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.3);">3</div>
+                    <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">Track Performance</h3>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">Monitor real-time sales, profit margins, and expenses from anywhere with interactive reports and analytics.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 6: Why Choose Us -->
+    <section id="why-choose-us" style="padding: 8rem 2rem; background-color: var(--navy-dark); color: white; position: relative; overflow: hidden;">
+        <div style="position: absolute; top: -10%; right: -10%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, transparent 70%); pointer-events: none;"></div>
+        <div class="container" style="max-width: 1200px; margin: 0 auto; position: relative; z-index: 2;">
+            <div style="text-align: center; max-width: 800px; margin: 0 auto 5rem auto;">
+                <span style="color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 2px; font-size: 0.9rem; display: inline-block; margin-bottom: 1rem;">Why Choose Joetech</span>
+                <h2 style="font-family: 'Poppins', sans-serif; font-size: 2.5rem; font-weight: 800; line-height: 1.2; margin-bottom: 1.5rem;">Built for Enterprise Performance & Scale</h2>
+                <p style="color: rgba(255, 255, 255, 0.7); font-size: 1.1rem; line-height: 1.6;">Discover why leading retail brands trust Joetech Store Manager to power their daily operations, from single-store boutiques to multi-branch enterprises.</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
+                <!-- Benefit 1 -->
+                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); padding: 2.5rem; border-radius: 20px; backdrop-filter: blur(10px); transition: transform 0.3s ease, border-color 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.borderColor='var(--primary)'" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(255, 255, 255, 0.08)'">
+                    <div style="width: 48px; height: 48px; background-color: rgba(37, 99, 235, 0.15); color: var(--primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                        <i data-lucide="zap"></i>
+                    </div>
+                    <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Lightning Fast Performance</h3>
+                    <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.95rem; line-height: 1.6;">Process transactions, search inventory, and generate reports instantly with our highly optimized database architecture.</p>
+                </div>
+
+                <!-- Benefit 2 -->
+                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); padding: 2.5rem; border-radius: 20px; backdrop-filter: blur(10px); transition: transform 0.3s ease, border-color 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.borderColor='var(--primary)'" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(255, 255, 255, 0.08)'">
+                    <div style="width: 48px; height: 48px; background-color: rgba(16, 185, 129, 0.15); color: var(--emerald); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                        <i data-lucide="shield-check"></i>
+                    </div>
+                    <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Bank-Grade Security</h3>
+                    <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.95rem; line-height: 1.6;">Your data is protected with end-to-end encryption, multi-factor authentication, and automated daily backups.</p>
+                </div>
+
+                <!-- Benefit 3 -->
+                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); padding: 2.5rem; border-radius: 20px; backdrop-filter: blur(10px); transition: transform 0.3s ease, border-color 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.borderColor='var(--primary)'" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(255, 255, 255, 0.08)'">
+                    <div style="width: 48px; height: 48px; background-color: rgba(37, 99, 235, 0.15); color: var(--primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                        <i data-lucide="wifi-off"></i>
+                    </div>
+                    <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Offline POS Mode</h3>
+                    <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.95rem; line-height: 1.6;">Keep selling even when the internet goes down. Sales automatically sync to the cloud once connection is restored.</p>
+                </div>
+
+                <!-- Benefit 4 -->
+                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); padding: 2.5rem; border-radius: 20px; backdrop-filter: blur(10px); transition: transform 0.3s ease, border-color 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.borderColor='var(--primary)'" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(255, 255, 255, 0.08)'">
+                    <div style="width: 48px; height: 48px; background-color: rgba(16, 185, 129, 0.15); color: var(--emerald); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                        <i data-lucide="brain-circuit"></i>
+                    </div>
+                    <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">AI Sales Insights</h3>
+                    <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.95rem; line-height: 1.6;">Forecast demand, identify best-selling products, and optimize stock levels with built-in machine learning models.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 7: Testimonials -->
+    <section id="testimonials" style="padding: 8rem 2rem; background-color: var(--gray-light);">
+        <div class="container" style="max-width: 1200px; margin: 0 auto;">
+            <div style="text-align: center; max-width: 800px; margin: 0 auto 5rem auto;">
+                <span style="color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 2px; font-size: 0.9rem; display: inline-block; margin-bottom: 1rem;">Testimonials</span>
+                <h2 style="font-family: 'Poppins', sans-serif; font-size: 2.5rem; font-weight: 800; color: var(--navy-dark); line-height: 1.2; margin-bottom: 1.5rem;">Loved by Retailers Worldwide</h2>
+                <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6;">See how Joetech Store Manager is helping businesses streamline operations and boost profitability.</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem;">
+                <!-- Testimonial 1 -->
+                <div style="background: white; border: 1px solid rgba(15, 23, 42, 0.05); padding: 2.5rem; border-radius: 20px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.03); display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div style="display: flex; gap: 0.25rem; color: #FBBF24; margin-bottom: 1.5rem;">
+                            <i data-lucide="star" style="fill: currentColor; width: 18px; height: 18px;"></i>
+                            <i data-lucide="star" style="fill: currentColor; width: 18px; height: 18px;"></i>
+                            <i data-lucide="star" style="fill: currentColor; width: 18px; height: 18px;"></i>
+                            <i data-lucide="star" style="fill: currentColor; width: 18px; height: 18px;"></i>
+                            <i data-lucide="star" style="fill: currentColor; width: 18px; height: 18px;"></i>
+                        </div>
+                        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.7; font-style: italic; margin-bottom: 2rem;">"Joetech Store Manager has transformed how we manage inventory and sales. It's simple, reliable, and saves us hours every week. The multi-branch feature is a lifesaver!"</p>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="width: 48px; height: 48px; background-color: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem;">JD</div>
+                        <div>
+                            <h4 style="font-weight: 700; color: var(--navy-dark); font-size: 1rem; margin-bottom: 0.25rem;">John Doe</h4>
+                            <p style="color: var(--text-muted); font-size: 0.85rem;">Owner, TechWorld Electronics</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div style="background: white; border: 1px solid rgba(15, 23, 42, 0.05); padding: 2.5rem; border-radius: 20px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.03); display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div style="display: flex; gap: 0.25rem; color: #FBBF24; margin-bottom: 1.5rem;">
+                            <i data-lucide="star" style="fill: currentColor; width: 18px; height: 18px;"></i>
+                            <i data-lucide="star" style="fill: currentColor; width: 18px; height: 18px;"></i>
+                            <i data-lucide="star" style="fill: currentColor; width: 18px; height: 18px;"></i>
+                            <i data-lucide="star" style="fill: currentColor; width: 18px; height: 18px;"></i>
+                            <i data-lucide="star" style="fill: currentColor; width: 18px; height: 18px;"></i>
+                        </div>
+                        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.7; font-style: italic; margin-bottom: 2rem;">"The POS interface is incredibly fast and intuitive. Our cashiers learned to use it in less than 10 minutes. The real-time stock updates prevent us from ever running out of key items."</p>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="width: 48px; height: 48px; background-color: var(--emerald); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem;">SM</div>
+                        <div>
+                            <h4 style="font-weight: 700; color: var(--navy-dark); font-size: 1rem; margin-bottom: 0.25rem;">Sarah Miller</h4>
+                            <p style="color: var(--text-muted); font-size: 0.85rem;">Operations Manager, FreshMart Supermarket</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 8: Pricing -->
+    <section id="pricing" style="padding: 8rem 2rem; background-color: var(--white);">
+        <div class="container" style="max-width: 1200px; margin: 0 auto;">
+            <div style="text-align: center; max-width: 800px; margin: 0 auto 5rem auto;">
+                <span style="color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 2px; font-size: 0.9rem; display: inline-block; margin-bottom: 1rem;">Pricing Plans</span>
+                <h2 style="font-family: 'Poppins', sans-serif; font-size: 2.5rem; font-weight: 800; color: var(--navy-dark); line-height: 1.2; margin-bottom: 1.5rem;">Simple, Transparent Pricing</h2>
+                <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6;">Choose the perfect plan for your business. All plans include a 14-day free trial. No credit card required.</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2.5rem; align-items: stretch;">
+                <!-- Starter Plan -->
+                <div style="background: white; border: 1px solid var(--border-color); padding: 3rem 2.5rem; border-radius: 20px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.3s ease, box-shadow 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 20px 40px rgba(15, 23, 42, 0.05)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                    <div>
+                        <h3 style="font-size: 1.5rem; font-weight: 700; color: var(--navy-dark); margin-bottom: 0.5rem;">Starter</h3>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem;">For small retail shops and boutiques.</p>
+                        <div style="display: flex; align-items: baseline; margin-bottom: 2rem;">
+                            <span style="font-size: 3rem; font-weight: 800; color: var(--navy-dark);">$29</span>
+                            <span style="color: var(--text-muted); font-size: 1rem; margin-left: 0.5rem;">/ month</span>
+                        </div>
+                        <ul style="list-style: none; padding: 0; margin-bottom: 2.5rem; display: flex; flex-direction: column; gap: 1rem;">
+                            <li style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; color: var(--text-muted);"><i data-lucide="check" style="color: var(--emerald); width: 18px; height: 18px;"></i> 1 Store Branch</li>
+                            <li style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; color: var(--text-muted);"><i data-lucide="check" style="color: var(--emerald); width: 18px; height: 18px;"></i> Up to 1,000 Products</li>
+                            <li style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; color: var(--text-muted);"><i data-lucide="check" style="color: var(--emerald); width: 18px; height: 18px;"></i> 2 Employee Accounts</li>
+                            <li style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; color: var(--text-muted);"><i data-lucide="check" style="color: var(--emerald); width: 18px; height: 18px;"></i> Basic POS & Inventory</li>
+                            <li style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; color: var(--text-muted);"><i data-lucide="check" style="color: var(--emerald); width: 18px; height: 18px;"></i> Email Support</li>
+                        </ul>
+                    </div>
+                    <a href="login.html" class="btn btn-secondary" style="width: 100%; text-align: center; padding: 0.85rem;">Start Free Trial</a>
+                </div>
+
+                <!-- Business Plan (Recommended) -->
+                <div style="background: white; border: 2px solid var(--primary); padding: 3rem 2.5rem; border-radius: 20px; display: flex; flex-direction: column; justify-content: space-between; position: relative; box-shadow: 0 20px 40px rgba(37, 99, 235, 0.08); transition: transform 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                    <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background-color: var(--primary); color: white; padding: 0.25rem 1rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Recommended</div>
+                    <div>
+                        <h3 style="font-size: 1.5rem; font-weight: 700; color: var(--navy-dark); margin-bottom: 0.5rem;">Business</h3>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem;">For growing retail stores and supermarkets.</p>
+                        <div style="display: flex; align-items: baseline; margin-bottom: 2rem;">
+                            <span style="font-size: 3rem; font-weight: 800; color: var(--navy-dark);">$79</span>
+                            <span style="color: var(--text-muted); font-size: 1rem; margin-left: 0.5rem;">/ month</span>
+                        </div>
+                        <ul style="list-style: none; padding: 0; margin-bottom: 2.5rem; display: flex; flex-direction: column; gap: 1rem;">
+                            <li style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; color: var(--text-muted);"><i data-lucide="check" style="color: var(--emerald); width: 18px; height: 18px;"></i> Up to 3 Store Branches</li>
+                            <li style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; color: var(--text-muted);"><i data-lucide="check" style="color: var(--emerald); width: 18px; height: 18px;"></i> Unlimited Products</li>
+                            <li style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; color: var(--text-muted);"><i data-lucide="check" style="color: var(--emerald); width: 18px; height: 18px;"></i> 10 Employee Accounts</li>
+                            <li style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; color: var(--text-muted);"><i data-lucide="check" style="color: var(--emerald); width: 18px; height: 18px;"></i> Advanced POS & Offline Mode</li>
+                            <li style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; color: var(--text-muted);"><i data-lucide="check" style="color: var(--emerald); width: 18px; height: 18px;"></i> Customer Loyalty Program</li>
+                            <li style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; color: var(--text-muted);"><i data-lucide="check" style="color: var(--emerald); width: 18px; height: 18px;"></i> 24/7 Priority Support</li>
+                        </ul>
+                    </div>
+                    <a href="login.html" class="btn btn-primary" style="width: 100%; text-align: center; padding: 0.85rem;">Start Free Trial</a>
+                </div>
+
+                <!-- Enterprise Plan -->
+                <div style="background: white; border: 1px solid var(--border-color); padding: 3rem 2.5rem; border-radius: 20px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.3s ease, box-shadow 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 20px 40px rgba(15, 23, 42, 0.05)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                    <div>
+                        <h3 style="font-size: 1.5rem; font-weight: 700; color: var(--navy-dark); margin-bottom: 0.5rem;">Enterprise</h3>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem;">For multi-branch retail chains.</p>
+                        <div style="display: flex; align-items: baseline; margin-bottom: 2rem;">
+                            <span style="font-size: 3rem; font-weight: 800; color: var(--navy-dark);">$199</span>
+                            <span style="color: var(--text-muted); font-size: 1rem; margin-left: 0.5rem;">/ month</span>
+                        </div>
+                        <ul style="list-style: none; padding: 0; margin-bottom: 2.5rem; display: flex; flex-direction: column; gap: 1rem;">
+                            <li style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; color: var(--text-muted);"><i data-lucide="check" style="color: var(--emerald); width: 18px; height: 18px;"></i> Unlimited Branches</li>
+                            <li style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; color: var(--text-muted);"><i data-lucide="check" style="color: var(--emerald); width: 18px; height: 18px;"></i> Unlimited Products & Users</li>
+                            <li style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; color: var(--text-muted);"><i data-lucide="check" style="color: var(--emerald); width: 18px; height: 18px;"></i> AI Sales Insights & Forecasting</li>
+                            <li style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; color: var(--text-muted);"><i data-lucide="check" style="color: var(--emerald); width: 18px; height: 18px;"></i> Warehouse & Bin Management</li>
+                            <li style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; color: var(--text-muted);"><i data-lucide="check" style="color: var(--emerald); width: 18px; height: 18px;"></i> Dedicated Account Manager</li>
+                        </ul>
+                    </div>
+                    <a href="login.html" class="btn btn-secondary" style="width: 100%; text-align: center; padding: 0.85rem;">Contact Sales</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 9: FAQ -->
+    <section id="faq" style="padding: 8rem 2rem; background-color: var(--gray-light); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+        <div class="container" style="max-width: 800px; margin: 0 auto;">
+            <div style="text-align: center; margin-bottom: 5rem;">
+                <span style="color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 2px; font-size: 0.9rem; display: inline-block; margin-bottom: 1rem;">FAQ</span>
+                <h2 style="font-family: 'Poppins', sans-serif; font-size: 2.5rem; font-weight: 800; color: var(--navy-dark); line-height: 1.2; margin-bottom: 1.5rem;">Frequently Asked Questions</h2>
+                <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6;">Have questions? We've got answers. If you don't find what you're looking for, feel free to contact our support team.</p>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <!-- FAQ 1 -->
+                <div class="faq-item" style="background: white; border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; transition: var(--transition);">
+                    <button class="faq-trigger" style="width: 100%; text-align: left; padding: 1.5rem 2rem; background: none; border: none; display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 1.1rem; color: var(--navy-dark); cursor: pointer;">
+                        <span>Can I use it for multiple stores?</span>
+                        <i data-lucide="chevron-down" style="transition: transform 0.3s ease;"></i>
+                    </button>
+                    <div class="faq-content" style="max-height: 0; overflow: hidden; transition: max-height 0.3s ease; padding: 0 2rem;">
+                        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; padding-bottom: 1.5rem;">Yes! Joetech Store Manager supports multi-branch management. You can track inventory, sales, and employees across all your branches from a single centralized dashboard.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ 2 -->
+                <div class="faq-item" style="background: white; border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; transition: var(--transition);">
+                    <button class="faq-trigger" style="width: 100%; text-align: left; padding: 1.5rem 2rem; background: none; border: none; display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 1.1rem; color: var(--navy-dark); cursor: pointer;">
+                        <span>Does it work offline?</span>
+                        <i data-lucide="chevron-down" style="transition: transform 0.3s ease;"></i>
+                    </button>
+                    <div class="faq-content" style="max-height: 0; overflow: hidden; transition: max-height 0.3s ease; padding: 0 2rem;">
+                        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; padding-bottom: 1.5rem;">Absolutely! Our Point of Sale (POS) system has a robust offline mode. You can continue processing sales and printing receipts even when the internet is down. Once connection is restored, all data automatically syncs to the cloud.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ 3 -->
+                <div class="faq-item" style="background: white; border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; transition: var(--transition);">
+                    <button class="faq-trigger" style="width: 100%; text-align: left; padding: 1.5rem 2rem; background: none; border: none; display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 1.1rem; color: var(--navy-dark); cursor: pointer;">
+                        <span>Can I print receipts?</span>
+                        <i data-lucide="chevron-down" style="transition: transform 0.3s ease;"></i>
+                    </button>
+                    <div class="faq-content" style="max-height: 0; overflow: hidden; transition: max-height 0.3s ease; padding: 0 2rem;">
+                        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; padding-bottom: 1.5rem;">Yes, you can print receipts directly from the POS interface. It supports standard thermal receipt printers, standard desktop printers, and you can also email receipts directly to customers.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ 4 -->
+                <div class="faq-item" style="background: white; border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; transition: var(--transition);">
+                    <button class="faq-trigger" style="width: 100%; text-align: left; padding: 1.5rem 2rem; background: none; border: none; display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 1.1rem; color: var(--navy-dark); cursor: pointer;">
+                        <span>Is my data secure?</span>
+                        <i data-lucide="chevron-down" style="transition: transform 0.3s ease;"></i>
+                    </button>
+                    <div class="faq-content" style="max-height: 0; overflow: hidden; transition: max-height 0.3s ease; padding: 0 2rem;">
+                        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; padding-bottom: 1.5rem;">Security is our top priority. We use bank-grade end-to-end encryption, secure cloud hosting, multi-factor authentication, and automated daily backups to ensure your business data is always safe and accessible.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 10: Call To Action -->
+    <section style="padding: 8rem 2rem; background: linear-gradient(135deg, var(--navy-dark) 0%, #1E293B 100%); color: white; text-align: center; position: relative; overflow: hidden;">
+        <div style="position: absolute; top: -50%; left: -10%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, transparent 70%); pointer-events: none;"></div>
+        <div class="container" style="max-width: 800px; margin: 0 auto; position: relative; z-index: 2;">
+            <h2 style="font-family: 'Poppins', sans-serif; font-size: 3rem; font-weight: 800; line-height: 1.2; margin-bottom: 1.5rem;">Ready to Simplify Your Store Management?</h2>
+            <p style="color: rgba(255, 255, 255, 0.7); font-size: 1.2rem; line-height: 1.6; margin-bottom: 3rem;">Join thousands of retail businesses using Joetech Store Manager to automate operations, increase sales, and save hours of manual work every single week.</p>
+            <div style="display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap;">
+                <a href="login.html" class="btn btn-primary" style="padding: 1rem 2.5rem; font-size: 1.1rem;">Start Free Trial</a>
+                <a href="login.html" class="btn btn-secondary" style="padding: 1rem 2.5rem; font-size: 1.1rem; background-color: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.1); color: white;">Request Demo</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 11: Footer -->
+    <footer style="background-color: #0B0F19; color: rgba(255, 255, 255, 0.6); padding: 6rem 2rem 3rem 2rem; border-top: 1px solid rgba(255, 255, 255, 0.05);">
+        <div class="container" style="max-width: 1200px; margin: 0 auto;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 4rem; margin-bottom: 4rem;">
+                <!-- Brand Column -->
+                <div style="grid-column: span 2;">
+                    <a href="#" class="logo" style="color: white; margin-bottom: 1.5rem;">
+                        <div class="logo-icon">
+                            <i data-lucide="cpu" style="width: 20px; height: 20px;"></i>
+                        </div>
+                        <span>Joetech Store</span>
+                    </a>
+                    <p style="font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem; max-width: 320px;">The ultimate enterprise-grade retail management and Point of Sale (POS) software for modern businesses.</p>
+                    <div style="display: flex; gap: 1rem;">
+                        <a href="#" style="color: rgba(255, 255, 255, 0.4); transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255, 255, 255, 0.4)'"><i data-lucide="facebook" style="width: 20px; height: 20px;"></i></a>
+                        <a href="#" style="color: rgba(255, 255, 255, 0.4); transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255, 255, 255, 0.4)'"><i data-lucide="twitter" style="width: 20px; height: 20px;"></i></a>
+                        <a href="#" style="color: rgba(255, 255, 255, 0.4); transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255, 255, 255, 0.4)'"><i data-lucide="instagram" style="width: 20px; height: 20px;"></i></a>
+                        <a href="#" style="color: rgba(255, 255, 255, 0.4); transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255, 255, 255, 0.4)'"><i data-lucide="linkedin" style="width: 20px; height: 20px;"></i></a>
+                    </div>
+                </div>
+
+                <!-- Product Column -->
+                <div>
+                    <h4 style="color: white; font-weight: 700; font-size: 1rem; margin-bottom: 1.5rem;">Product</h4>
+                    <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9rem;">
+                        <li><a href="#features" style="color: inherit; text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='inherit'">Features</a></li>
+                        <li><a href="#pricing" style="color: inherit; text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='inherit'">Pricing</a></li>
+                        <li><a href="#" style="color: inherit; text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='inherit'">Updates</a></li>
+                        <li><a href="#" style="color: inherit; text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='inherit'">Security</a></li>
+                    </ul>
+                </div>
+
+                <!-- Resources Column -->
+                <div>
+                    <h4 style="color: white; font-weight: 700; font-size: 1rem; margin-bottom: 1.5rem;">Resources</h4>
+                    <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9rem;">
+                        <li><a href="#" style="color: inherit; text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='inherit'">Documentation</a></li>
+                        <li><a href="#" style="color: inherit; text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='inherit'">Help Center</a></li>
+                        <li><a href="#" style="color: inherit; text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='inherit'">Blog</a></li>
+                        <li><a href="#" style="color: inherit; text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='inherit'">Status</a></li>
+                    </ul>
+                </div>
+
+                <!-- Legal Column -->
+                <div>
+                    <h4 style="color: white; font-weight: 700; font-size: 1rem; margin-bottom: 1.5rem;">Legal</h4>
+                    <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9rem;">
+                        <li><a href="#" style="color: inherit; text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='inherit'">Privacy Policy</a></li>
+                        <li><a href="#" style="color: inherit; text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='inherit'">Terms of Service</a></li>
+                        <li><a href="#" style="color: inherit; text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='inherit'">GDPR Compliance</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; font-size: 0.85rem;">
+                <p>&copy; 2026 Joetech Store Manager. All rights reserved.</p>
+                <p>Designed with ❤️ for modern retail businesses.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Lucide Icons
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+
+        // Navbar Scroll Effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Interactive Screenshot Tabs
+        const screenshotImages = {
+            dashboard: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1000&q=80',
+            pos: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=1000&q=80',
+            products: 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=1000&q=80',
+            inventory: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1000&q=80',
+            reports: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1000&q=80'
+        };
+
+        function switchTab(tabName) {
+            // Update active tab button
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.backgroundColor = 'var(--white)';
+                btn.style.color = 'var(--text-muted)';
+                btn.style.borderColor = 'var(--border-color)';
+            });
+
+            const activeBtn = event.currentTarget;
+            activeBtn.classList.add('active');
+            activeBtn.style.backgroundColor = 'var(--primary-blue)';
+            activeBtn.style.color = 'white';
+            activeBtn.style.borderColor = 'var(--primary-blue)';
+
+            // Update image with smooth transition
+            const img = document.getElementById('screenshot-img');
+            img.style.opacity = '0';
+            setTimeout(() => {
+                img.src = screenshotImages[tabName];
+                img.style.opacity = '1';
+            }, 200);
+        }
+
+        // FAQ Accordion Toggle
+        const faqTriggers = document.querySelectorAll('.faq-trigger');
+        faqTriggers.forEach(trigger => {
+            trigger.addEventListener('click', () => {
+                const item = trigger.parentElement;
+                const content = item.querySelector('.faq-content');
+                const icon = trigger.querySelector('i');
+                const isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
+
+                // Close all other FAQs
+                document.querySelectorAll('.faq-content').forEach(c => {
+                    c.style.maxHeight = '0px';
+                    c.parentElement.querySelector('i').style.transform = 'rotate(0deg)';
+                });
+
+                if (!isOpen) {
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                    icon.style.transform = 'rotate(180deg)';
+                } else {
+                    content.style.maxHeight = '0px';
+                    icon.style.transform = 'rotate(0deg)';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - JoeTech Store Manager</title>
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/global.css">
+    <link rel="stylesheet" href="assets/css/sidebar.css">
+    <link rel="stylesheet" href="assets/css/navbar.css">
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div id="sidebar-container"></div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Navbar -->
+            <div id="navbar-container"></div>
+
+            <!-- Content Body -->
+            <div class="content-body">
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-4 gap-4" style="margin-bottom: 2rem;">
+                    <div class="card stat-card">
+                        <div class="stat-icon" style="background-color: rgba(79, 70, 229, 0.1); color: var(--primary);">
+                            <i data-lucide="dollar-sign"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Total Revenue</span>
+                            <h3 class="stat-value" id="stat-revenue">$0.00</h3>
+                        </div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-icon"
+                            style="background-color: rgba(16, 185, 129, 0.1); color: var(--success);">
+                            <i data-lucide="shopping-bag"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Sales Count</span>
+                            <h3 class="stat-value" id="stat-sales">0</h3>
+                        </div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-icon" style="background-color: rgba(6, 182, 212, 0.1); color: var(--info);">
+                            <i data-lucide="package"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Total Products</span>
+                            <h3 class="stat-value" id="stat-products">0</h3>
+                        </div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-icon" style="background-color: rgba(239, 68, 68, 0.1); color: var(--danger);">
+                            <i data-lucide="alert-triangle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Low Stock Alerts</span>
+                            <h3 class="stat-value" id="stat-low-stock">0</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Content Grid -->
+                <div class="grid grid-cols-3 gap-4">
+                    <!-- Recent Sales Table -->
+                    <div class="card" style="grid-column: span 2;">
+                        <div class="flex justify-between items-center" style="margin-bottom: 1.5rem;">
+                            <h3 style="font-weight: 600; font-size: 1.125rem;">Recent Sales</h3>
+                            <a href="sales.html" class="btn btn-secondary"
+                                style="padding: 0.4rem 0.8rem; font-size: 0.875rem;">View All</a>
+                        </div>
+                        <div id="recent-sales-table"></div>
+                    </div>
+
+                    <!-- Top Selling Products -->
+                    <div class="card">
+                        <h3 style="font-weight: 600; font-size: 1.125rem; margin-bottom: 1.5rem;">Top Selling Products
+                        </h3>
+                        <div id="top-products-list" class="flex flex-col gap-4">
+                            <!-- Dynamic list -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="assets/js/dashboard/dashboard.js"></script>
+</body>
+
+</html>

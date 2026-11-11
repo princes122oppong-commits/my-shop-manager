@@ -1,0 +1,35 @@
+/* Products Page Styles */
+#products-table-container {
+    width: 100%;
+}
+
+.edit-product-btn,
+.delete-product-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+}
+
+.edit-product-btn {
+    background-color: var(--primary-light);
+    color: var(--primary);
+}
+
+.edit-product-btn:hover {
+    background-color: var(--primary);
+    color: white;
+}
+
+.delete-product-btn {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+}
+
+.delete-product-btn:hover {
+    background-color: var(--danger);
+    color: white;
+}

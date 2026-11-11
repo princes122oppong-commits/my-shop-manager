@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expenses - JoeTech Store Manager</title>
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/global.css">
+    <link rel="stylesheet" href="assets/css/sidebar.css">
+    <link rel="stylesheet" href="assets/css/navbar.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <div id="sidebar-container"></div>
+        <div class="main-content">
+            <div id="navbar-container"></div>
+            <div class="content-body">
+                <div class="flex justify-between items-center" style="margin-bottom: 1.5rem;">
+                    <h2 style="font-weight: 600; font-size: 1.25rem;">Expense Tracker</h2>
+                    <button id="add-expense-btn" class="btn btn-primary">
+                        <i data-lucide="plus"></i>
+                        <span>Add Expense</span>
+                    </button>
+                </div>
+                <div class="card">
+                    <div id="expenses-table-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="assets/js/expenses/expenses.js"></script>
+</body>
+
+</html>
