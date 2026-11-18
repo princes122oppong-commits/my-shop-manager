@@ -142,7 +142,7 @@ DROP POLICY IF EXISTS "Members can view organizations" ON public.organizations;
 DROP POLICY IF EXISTS "Users can create organizations" ON public.organizations;
 DROP POLICY IF EXISTS "Organization admins can update organizations" ON public.organizations;
 CREATE POLICY "Members can view organizations" ON public.organizations FOR SELECT TO authenticated
-    USING (public.is_organization_member(id));
+    USING (public.is_organization_member(id) OR owner_id = auth.uid());
 CREATE POLICY "Users can create organizations" ON public.organizations FOR INSERT TO authenticated
     WITH CHECK (
         owner_id = auth.uid()
