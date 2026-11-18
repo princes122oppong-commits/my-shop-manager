@@ -1,4 +1,5 @@
 import { getSupabaseClient, isSupabaseConfigured } from '../services/supabase.js';
+import { organizationService } from '../services/organizationService.js';
 
 const ROUTES = {
     INDEX: 'index.html',
@@ -86,6 +87,15 @@ export async function checkAuth() {
         if (hasSession && publicPage) {
             window.location.href = ROUTES.DASHBOARD;
             return false;
+        }
+
+        if (hasSession && !publicPage) {
+            const memberships = await organizationService.getMyOrganizations();
+            if (memberships.organizations.length) {
+                const savedId = organizationService.getCurrentOrganizationId();
+                const organization = memberships.organizations.find(item => item.id === savedId) || memberships.organizations[0];
+                await organizationService.setActiveOrganization(organization);
+            }
         }
 
         return hasSession || publicPage;

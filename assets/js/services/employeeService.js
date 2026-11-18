@@ -1,6 +1,6 @@
 import CONSTANTS from '../config/constants.js';
 import { getSupabaseClient } from './supabase.js';
-import { organizationService } from './organizationService.js';
+import { organizationService, branchService } from './organizationService.js';
 import { subscriptionService } from './subscriptionService.js';
 
 function mapEmployee(row, profile = {}) {
@@ -94,6 +94,7 @@ export const employeeService = {
             const { data, error } = await client.from('employees').upsert({
                 id: profile.id,
                 organization_id: organizationId,
+                branch_id: branchService.getCurrentBranchId(),
                 employee_id: employeeData.employeeId || `EMP-${Date.now()}`,
                 department: employeeData.department,
                 position: employeeData.role,
@@ -101,6 +102,11 @@ export const employeeService = {
                 hire_date: employeeData.hireDate || new Date().toISOString().slice(0, 10)
             }).select('*').single();
             if (error) throw error;
+            const { error: branchError } = await client.from('user_branches').upsert({
+                organization_id: organizationId, user_id: profile.id,
+                branch_id: branchService.getCurrentBranchId(), is_primary: true
+            }, { onConflict: 'user_id,branch_id' });
+            if (branchError) throw branchError;
             return mapEmployee(data, profile);
         }
         this.init();

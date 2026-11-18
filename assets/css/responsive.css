@@ -17,6 +17,10 @@
     .navbar { width: 100%; max-width: 100%; padding: 0 .85rem; }
     .navbar-left, .navbar-right { min-width: 0; }
     .navbar-right { gap: .35rem; }
+    .store-context { max-width: 42vw; gap: .25rem; }
+    .context-select-wrap > span { display: none; }
+    .context-select-wrap select { max-width: 125px; padding: .4rem 1.35rem .4rem .45rem; font-size: .72rem; }
+    .branch-current { max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .user-info { display: none !important; }
     .content-body { width: 100%; max-width: 100%; min-width: 0; padding: 1rem; overflow-x: hidden; }
     .grid-cols-4, .grid-cols-3, .grid-cols-2 { grid-template-columns: 1fr !important; }
@@ -32,6 +36,8 @@
 @media (max-width: 480px) {
     .content-body { padding: .75rem; }
     .navbar-title { font-size: .95rem; }
+    .store-context { max-width: 39vw; }
+    .context-select-wrap select { max-width: 92px; }
     .stat-card { padding: 1rem; }
     .stat-icon { width: 38px; height: 38px; }
     .stat-value { font-size: 1.25rem; }

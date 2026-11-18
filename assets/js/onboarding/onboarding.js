@@ -1,4 +1,4 @@
-import { organizationService } from '../services/organizationService.js';
+import { organizationService, branchService } from '../services/organizationService.js';
 import { checkAuth } from '../config/routes.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -7,7 +7,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const existing = await organizationService.getMyOrganizations();
     if (existing.organizations.length > 0) {
-        organizationService.setCurrentOrganization(existing.organizations[0]);
+        const currentId = organizationService.getCurrentOrganizationId();
+        const organization = existing.organizations.find(item => item.id === currentId) || existing.organizations[0];
+        await organizationService.setActiveOrganization(organization);
         window.location.href = 'dashboard.html';
         return;
     }
@@ -21,6 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         error.style.display = 'none';
         try {
             await organizationService.createOrganization(new FormData(form).get('storeName'));
+            await branchService.ensureDefaultBranch();
             window.location.href = 'dashboard.html';
         } catch (exception) {
             error.textContent = exception.message || 'Unable to create your store.';

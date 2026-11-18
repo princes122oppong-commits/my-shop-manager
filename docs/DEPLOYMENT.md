@@ -6,9 +6,11 @@
 2. Deploy the application onboarding and organization-aware service changes.
 3. Run [supabase-saas-migration.sql](../database/supabase-saas-migration.sql).
    Re-run this migration after pulling updates so the owner/admin role and subscription-field protections are applied to the live database.
-4. Create the first Supabase Auth user and promote it to an administrator.
-5. Confirm that the first user can create an organization from [onboarding.html](../onboarding.html).
-6. Test product creation, customer creation, inventory movement, expense creation, and a POS sale.
+4. Run [supabase-branches-migration.sql](../database/supabase-branches-migration.sql) after the SaaS migration.
+5. Create the first Supabase Auth user and promote it to an administrator.
+6. Confirm that the first user can create an organization from [onboarding.html](../onboarding.html).
+7. Test organization switching, create a second branch, switch branches, and verify branch stock and sales are separate.
+8. Test product creation, customer creation, inventory movement, expense creation, and a POS sale.
 
 ## Vercel
 
@@ -37,9 +39,10 @@ https://your-domain.com/reset-password.html
 
 - HTTPS is active.
 - Supabase Auth email confirmation is configured.
-- RLS is enabled and the SaaS migration has been applied.
+- RLS is enabled and both the SaaS and branch migrations have been applied.
 - Anonymous users cannot read business tables.
 - Two different organizations cannot see each other's records.
+- Staff can access only branches assigned to them.
 - Password reset works on the production domain.
 - No service-role key is committed.
 - A backup and support contact are documented.

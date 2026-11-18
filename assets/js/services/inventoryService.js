@@ -1,7 +1,7 @@
 import CONSTANTS from '../config/constants.js';
 import { productService } from './productService.js';
 import { getSupabaseClient } from './supabase.js';
-import { organizationService } from './organizationService.js';
+import { organizationService, branchService } from './organizationService.js';
 
 export const inventoryService = {
     init() {
@@ -39,6 +39,7 @@ export const inventoryService = {
             const { data, error } = await client
                 .from('inventory_movements')
                 .select('*, products(name)')
+                .eq('branch_id', branchService.getCurrentBranchId())
                 .order('created_at', { ascending: false });
             if (error) throw error;
             return (data || []).map(m => ({
@@ -64,6 +65,7 @@ export const inventoryService = {
             const { data: authData } = await client.auth.getUser();
             const { data, error } = await client.from('inventory_movements').insert({
                 organization_id: organizationService.getCurrentOrganizationId(),
+                branch_id: branchService.getCurrentBranchId(),
                 product_id: productId,
                 type,
                 quantity: Number(quantity),

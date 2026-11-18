@@ -2,6 +2,10 @@
 .navbar-left { display: flex; align-items: center; gap: 1rem; min-width: 0; }
 .navbar-title { overflow: hidden; color: var(--text-main); font-size: 1.05rem; font-weight: 800; letter-spacing: -.025em; text-overflow: ellipsis; white-space: nowrap; }
 .navbar-right { display: flex; align-items: center; gap: 1rem; }
+.store-context { display: flex; align-items: center; gap: .5rem; }
+.context-select-wrap { display: flex; align-items: center; gap: .4rem; color: var(--text-muted); font-size: .7rem; font-weight: 700; }
+.context-select-wrap select { max-width: 180px; padding: .48rem 1.8rem .48rem .65rem; color: var(--text-main); background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-sm); font: inherit; font-size: .78rem; }
+.branch-current { padding: .45rem .65rem; color: var(--text-muted); background: var(--bg-main); border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: .75rem; }
 .mobile-menu-toggle { display: none; align-items: center; justify-content: center; width: 36px; height: 36px; color: var(--text-main); background: var(--bg-main); border: 1px solid var(--border-color); border-radius: var(--radius-sm); }
 .mobile-menu-toggle svg { width: 18px; height: 18px; }
 .theme-toggle { display: inline-flex; align-items: center; justify-content: center; padding: .55rem; color: var(--text-main); background: transparent; border-radius: 50%; transition: background-color var(--transition-fast), transform var(--transition-fast); }

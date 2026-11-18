@@ -2,7 +2,7 @@ import CONSTANTS from '../config/constants.js';
 import { productService } from './productService.js';
 import { inventoryService } from './inventoryService.js';
 import { getSupabaseClient } from './supabase.js';
-import { organizationService } from './organizationService.js';
+import { organizationService, branchService } from './organizationService.js';
 import { subscriptionService } from './subscriptionService.js';
 
 function mapSale(row, items = []) {
@@ -78,7 +78,7 @@ export const salesService = {
     async getAll() {
         const client = await getSupabaseClient();
         if (client) {
-            const { data, error } = await client.from('sales').select('*, sale_items(*)').order('created_at', { ascending: false });
+            const { data, error } = await client.from('sales').select('*, sale_items(*)').eq('branch_id', branchService.getCurrentBranchId()).order('created_at', { ascending: false });
             if (error) throw error;
             return (data || []).map(row => mapSale(row, (row.sale_items || []).map(item => ({
                 productId: item.product_id,
@@ -104,9 +104,18 @@ export const salesService = {
             const total = subtotal + tax;
             const saleNumber = `S-${Date.now()}`;
             const payment = String(paymentMethod || 'cash').toLowerCase().replaceAll(' ', '_');
+            const quantities = new Map();
+            items.forEach(item => quantities.set(item.productId, (quantities.get(item.productId) || 0) + Number(item.quantity)));
+            for (const [productId, quantity] of quantities) {
+                const product = await productService.getById(productId);
+                if (!product || Number(product.stock) < quantity) {
+                    throw new Error(`Insufficient stock for ${product?.name || 'a product'} at this branch.`);
+                }
+            }
 
             const { data: sale, error: saleError } = await client.from('sales').insert({
                 organization_id: organizationService.getCurrentOrganizationId(),
+                branch_id: branchService.getCurrentBranchId(),
                 sale_number: saleNumber,
                 customer_name: customerName || 'Walk-in Customer',
                 user_id: authData?.user?.id || null,
@@ -121,6 +130,7 @@ export const salesService = {
 
             const saleItems = items.map(item => ({
                 organization_id: organizationService.getCurrentOrganizationId(),
+                branch_id: branchService.getCurrentBranchId(),
                 sale_id: sale.id,
                 product_id: item.productId,
                 product_name: item.name,
@@ -134,6 +144,13 @@ export const salesService = {
             if (itemError) {
                 await client.from('sales').delete().eq('id', sale.id);
                 throw itemError;
+            }
+            try {
+                const { error: inventoryError } = await client.rpc('record_sale_inventory', { p_sale_id: sale.id });
+                if (inventoryError) throw inventoryError;
+            } catch (error) {
+                await client.from('sales').delete().eq('id', sale.id);
+                throw error;
             }
             return mapSale({ ...sale, sale_number: saleNumber }, items);
         }

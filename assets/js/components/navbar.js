@@ -1,3 +1,5 @@
+import { organizationService, branchService } from '../services/organizationService.js';
+
 export function renderNavbar(title) {
     const navbarContainer = document.getElementById('navbar-container');
     if (!navbarContainer) return;
@@ -16,6 +18,7 @@ export function renderNavbar(title) {
                 <h1 class="navbar-title">${title}</h1>
             </div>
             <div class="navbar-right">
+                <div id="store-context" class="store-context" aria-label="Store and branch selection"></div>
                 <button id="theme-toggle-btn" class="theme-toggle" title="Toggle Theme">
                     <i data-lucide="${currentTheme === 'light' ? 'moon' : 'sun'}"></i>
                 </button>
@@ -42,6 +45,8 @@ export function renderNavbar(title) {
         if (window.lucide) window.lucide.createIcons();
     });
 
+    loadStoreContext();
+
     const themeBtn = document.getElementById('theme-toggle-btn');
     themeBtn?.addEventListener('click', () => {
         const activeTheme = document.documentElement.getAttribute('data-theme');
@@ -61,3 +66,52 @@ export function renderNavbar(title) {
         window.lucide.createIcons();
     }
 }
+
+async function loadStoreContext() {
+    const container = document.getElementById('store-context');
+    if (!container) return;
+    try {
+        const organizations = await organizationService.getMyOrganizations();
+        if (!organizations.available || !organizations.organizations.length) return;
+        const orgId = organizationService.getCurrentOrganizationId();
+        const org = organizations.organizations.find(item => item.id === orgId) || organizations.organizations[0];
+        if (org.id !== orgId) await organizationService.setActiveOrganization(org);
+        let branches = await branchService.getMyBranches();
+        if (!branches.length) {
+            await branchService.ensureDefaultBranch();
+            branches = await branchService.getMyBranches();
+        }
+        let branch = branches.find(item => item.id === branchService.getCurrentBranchId());
+        if (!branch && branches.length) {
+            branch = branches[0];
+            branchService.setCurrentBranch(branch);
+        }
+
+        container.innerHTML = `
+            ${organizations.organizations.length > 1 ? `<label class="context-select-wrap"><span>Store</span><select id="organization-switcher" aria-label="Select store">${organizations.organizations.map(item => `<option value="${escapeAttribute(item.id)}" ${item.id === org.id ? 'selected' : ''}>${escapeHtml(item.name)}</option>`).join('')}</select></label>` : ''}
+            ${branches.length > 1 ? `<label class="context-select-wrap"><span>Branch</span><select id="branch-switcher" aria-label="Select branch">${branches.map(item => `<option value="${escapeAttribute(item.id)}" ${item.id === branch?.id ? 'selected' : ''}>${escapeHtml(item.name)}</option>`).join('')}</select></label>` : branches.length === 1 ? `<span class="branch-current" title="Current branch">${escapeHtml(branches[0].name)}</span>` : ''}
+        `;
+        document.getElementById('organization-switcher')?.addEventListener('change', async event => {
+            const selected = organizations.organizations.find(item => item.id === event.target.value);
+            if (selected) {
+                await organizationService.setActiveOrganization(selected);
+                window.location.href = 'dashboard.html';
+            }
+        });
+        document.getElementById('branch-switcher')?.addEventListener('change', event => {
+            const selected = branches.find(item => item.id === event.target.value);
+            if (selected) {
+                branchService.setCurrentBranch(selected);
+                window.location.reload();
+            }
+        });
+    } catch (error) {
+        console.error('Could not load store and branch selectors:', error);
+    }
+}
+
+function escapeHtml(value = '') {
+    return String(value).replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
+}
+
+function escapeAttribute(value = '') { return escapeHtml(value); }

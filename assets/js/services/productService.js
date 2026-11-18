@@ -2,6 +2,19 @@ import CONSTANTS from '../config/constants.js';
 import { getSupabaseClient } from './supabase.js';
 import { organizationService } from './organizationService.js';
 import { subscriptionService } from './subscriptionService.js';
+import { branchService } from './organizationService.js';
+
+async function applyBranchStock(client, products) {
+    const branchId = branchService.getCurrentBranchId();
+    if (!branchId || !products.length) return products;
+    const { data, error } = await client.from('branch_inventory').select('product_id, stock').eq('branch_id', branchId);
+    if (error) {
+        if (error.code === '42P01' || error.code === 'PGRST205') return products;
+        throw error;
+    }
+    const stockByProduct = new Map((data || []).map(row => [row.product_id, Number(row.stock) || 0]));
+    return products.map(product => ({ ...product, stock: stockByProduct.get(product.id) ?? 0 }));
+}
 
 function mapProduct(row) {
     return {
@@ -119,7 +132,7 @@ export const productService = {
                 .eq('is_active', true)
                 .order('created_at', { ascending: false });
             if (error) throw error;
-            return (data || []).map(mapProduct);
+            return applyBranchStock(client, (data || []).map(mapProduct));
         }
         this.init();
         return JSON.parse(localStorage.getItem(CONSTANTS.STORAGE_KEYS.PRODUCTS));
@@ -148,12 +161,21 @@ export const productService = {
                 description: productData.description || null,
                 price: Number(productData.price),
                 cost: Number(productData.cost),
-                stock: Number(productData.stock || 0),
+                stock: 0,
                 min_stock: Number(productData.minStock || 0),
                 is_active: true
             }).select('*, categories(name)').single();
             if (error) throw error;
-            return mapProduct(data);
+            const branchId = branchService.getCurrentBranchId();
+            const stock = Number(productData.stock || 0);
+            if (branchId) {
+                const { error: inventoryError } = await client.from('branch_inventory').upsert({
+                    organization_id: organizationService.getCurrentOrganizationId(), branch_id: branchId,
+                    product_id: data.id, stock, updated_at: new Date().toISOString()
+                }, { onConflict: 'branch_id,product_id' });
+                if (inventoryError && inventoryError.code !== '42P01' && inventoryError.code !== 'PGRST205') throw inventoryError;
+            }
+            return { ...mapProduct(data), stock };
         }
 
         const products = await this.getAll();
@@ -180,12 +202,19 @@ export const productService = {
                 category_id: await resolveCategoryId(client, productData.category),
                 price: Number(productData.price),
                 cost: Number(productData.cost),
-                stock: Number(productData.stock),
                 min_stock: Number(productData.minStock)
             };
             const { data, error } = await client.from('products').update(payload).eq('id', id).select('*, categories(name)').single();
             if (error) throw error;
-            return mapProduct(data);
+            const branchId = branchService.getCurrentBranchId();
+            if (branchId && productData.stock !== undefined) {
+                const { error: inventoryError } = await client.from('branch_inventory').upsert({
+                    organization_id: organizationService.getCurrentOrganizationId(), branch_id: branchId,
+                    product_id: id, stock: Math.max(0, Number(productData.stock)), updated_at: new Date().toISOString()
+                }, { onConflict: 'branch_id,product_id' });
+                if (inventoryError && inventoryError.code !== '42P01' && inventoryError.code !== 'PGRST205') throw inventoryError;
+            }
+            return { ...mapProduct(data), stock: Number(productData.stock ?? data.stock) };
         }
 
         const products = await this.getAll();
@@ -222,13 +251,27 @@ export const productService = {
     async updateStock(id, quantityChange) {
         const client = await getSupabaseClient();
         if (client) {
-            const { data: product, error: readError } = await client.from('products').select('stock').eq('id', id).single();
-            if (readError) throw readError;
-            const stock = Number(product.stock) + Number(quantityChange);
+            const branchId = branchService.getCurrentBranchId();
+            const { data: product, error: readError } = await client.from('branch_inventory').select('stock').eq('product_id', id).eq('branch_id', branchId).maybeSingle();
+            if (readError && readError.code !== '42P01' && readError.code !== 'PGRST205') throw readError;
+            if (!branchId || (readError && (readError.code === '42P01' || readError.code === 'PGRST205'))) {
+                const { data: legacyProduct, error: legacyError } = await client.from('products').select('stock').eq('id', id).single();
+                if (legacyError) throw legacyError;
+                const stock = Number(legacyProduct.stock) + Number(quantityChange);
+                if (stock < 0) throw new Error('Insufficient stock.');
+                const { data, error } = await client.from('products').update({ stock }).eq('id', id).select('*, categories(name)').single();
+                if (error) throw error;
+                return mapProduct(data);
+            }
+            const stock = Number(product?.stock || 0) + Number(quantityChange);
             if (stock < 0) throw new Error('Insufficient stock.');
-            const { data, error } = await client.from('products').update({ stock }).eq('id', id).select('*, categories(name)').single();
-            if (error) throw error;
-            return mapProduct(data);
+            const { error: writeError } = await client.from('branch_inventory').upsert({
+                organization_id: organizationService.getCurrentOrganizationId(), branch_id: branchId,
+                product_id: id, stock, updated_at: new Date().toISOString()
+            }, { onConflict: 'branch_id,product_id' });
+            if (writeError) throw writeError;
+            const productData = await this.getById(id);
+            return { ...productData, stock };
         }
 
         const products = await this.getAll();

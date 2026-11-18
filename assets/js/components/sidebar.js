@@ -13,6 +13,7 @@ export function renderSidebar(activePage) {
         { name: 'Customers', icon: 'users', route: ROUTES.CUSTOMERS },
         { name: 'Suppliers', icon: 'truck', route: ROUTES.SUPPLIERS },
         { name: 'Employees', icon: 'user-check', route: ROUTES.EMPLOYEES },
+        { name: 'Branches', icon: 'building-2', route: ROUTES.BRANCHES },
         { name: 'Expenses', icon: 'receipt', route: ROUTES.EXPENSES },
         { name: 'Reports', icon: 'bar-chart-3', route: ROUTES.REPORTS },
         { name: 'Finance', icon: 'wallet', route: ROUTES.FINANCE },

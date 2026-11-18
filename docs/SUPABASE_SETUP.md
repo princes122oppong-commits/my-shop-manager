@@ -10,7 +10,7 @@ Copy the complete contents of [supabase-schema.sql](../database/supabase-schema.
 
 The schema creates the store tables, indexes, triggers, seed records, and Row Level Security policies.
 
-For the hosted SaaS version, also run [supabase-saas-migration.sql](../database/supabase-saas-migration.sql). This adds organizations, memberships, tenant columns, and organization-scoped policies. Follow the order in [DEPLOYMENT.md](./DEPLOYMENT.md) before opening the service to customers.
+For the hosted SaaS version, also run [supabase-saas-migration.sql](../database/supabase-saas-migration.sql), then [supabase-branches-migration.sql](../database/supabase-branches-migration.sql). The second migration creates a Main Store for existing organizations, assigns existing members to it, adds branch-scoped stock and operational records, and enforces branch access through RLS. Run both migrations in order before opening the service to customers.
 
 ## 3. Create the first user
 
@@ -51,4 +51,6 @@ The schema enables RLS on application tables. Anonymous users cannot read store 
 - `inventory_officer`: product and inventory workflows
 - `viewer`: read-only access
 
-The application still supports offline LocalStorage mode when Supabase credentials are not configured. That mode is intended for demos and local testing, not shared production data.
+The top bar lets a user switch among organizations they belong to and branches assigned to their role. Owners, admins, and managers can access every branch in their organization; other staff see branches assigned in `user_branches`. Assign additional branches there when a staff member needs multi-location access.
+
+The application still supports offline LocalStorage mode when Supabase credentials are not configured. That mode is intended for demos and local testing, not shared production data, and has a single demo branch.

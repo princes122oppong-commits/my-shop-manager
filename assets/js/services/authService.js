@@ -52,8 +52,9 @@ export const authService = {
             localStorage.setItem(CONSTANTS.STORAGE_KEYS.CURRENT_USER, JSON.stringify(sessionUser));
             const organizations = await organizationService.getMyOrganizations();
             if (organizations.available && organizations.organizations.length > 0) {
-                const currentOrganization = organizations.organizations[0];
-                organizationService.setCurrentOrganization(currentOrganization);
+                const savedOrganizationId = organizationService.getCurrentOrganizationId();
+                const currentOrganization = organizations.organizations.find(org => org.id === savedOrganizationId) || organizations.organizations[0];
+                await organizationService.setActiveOrganization(currentOrganization);
                 // In hosted mode, organization membership is the source of
                 // truth for tenant permissions. Keep the profile role
                 // separate so users cannot self-promote through profile edits.

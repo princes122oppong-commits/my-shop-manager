@@ -1,6 +1,6 @@
 import CONSTANTS from '../config/constants.js';
 import { getSupabaseClient } from './supabase.js';
-import { organizationService } from './organizationService.js';
+import { organizationService, branchService } from './organizationService.js';
 
 function mapExpense(row) {
     return {
@@ -61,7 +61,7 @@ export const expenseService = {
     async getAll() {
         const client = await getSupabaseClient();
         if (client) {
-            const { data, error } = await client.from('expenses').select('*, expense_categories(name)').order('expense_date', { ascending: false });
+            const { data, error } = await client.from('expenses').select('*, expense_categories(name)').eq('branch_id', branchService.getCurrentBranchId()).order('expense_date', { ascending: false });
             if (error) throw error;
             return (data || []).map(mapExpense);
         }
@@ -79,6 +79,7 @@ export const expenseService = {
             const { data: userData } = await client.auth.getUser();
             const { data, error } = await client.from('expenses').insert({
                 organization_id: organizationService.getCurrentOrganizationId(),
+                branch_id: branchService.getCurrentBranchId(),
                 category_id: await resolveCategoryId(client, expenseData.category),
                 description: expenseData.description,
                 amount: Number(expenseData.amount),
