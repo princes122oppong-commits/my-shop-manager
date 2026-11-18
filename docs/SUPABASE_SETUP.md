@@ -6,11 +6,11 @@ Create a Supabase project, then open **SQL Editor**.
 
 ## 2. Install the database
 
-Copy the complete contents of [supabase-schema.sql](./supabase-schema.sql) into the SQL Editor and run it once.
+Copy the complete contents of [supabase-schema.sql](../database/supabase-schema.sql) into the SQL Editor and run it once.
 
 The schema creates the store tables, indexes, triggers, seed records, and Row Level Security policies.
 
-For the hosted SaaS version, also run [supabase-saas-migration.sql](./supabase-saas-migration.sql). This adds organizations, memberships, tenant columns, and organization-scoped policies. Follow the order in [DEPLOYMENT.md](./DEPLOYMENT.md) before opening the service to customers.
+For the hosted SaaS version, also run [supabase-saas-migration.sql](../database/supabase-saas-migration.sql). This adds organizations, memberships, tenant columns, and organization-scoped policies. Follow the order in [DEPLOYMENT.md](./DEPLOYMENT.md) before opening the service to customers.
 
 ## 3. Create the first user
 

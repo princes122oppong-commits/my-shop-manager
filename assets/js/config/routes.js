@@ -67,8 +67,10 @@ const ROUTES = {
 
 export async function checkAuth() {
     const currentUser = localStorage.getItem('joetech_current_user');
-    const currentPage = window.location.pathname.split('/').pop();
-    const publicPage = currentPage === ROUTES.LOGIN || currentPage === 'index.html' || currentPage === '';
+    // Vercel's cleanUrls setting removes .html from the browser pathname.
+    // Normalize both extensionful and extensionless URLs before guarding pages.
+    const currentPage = window.location.pathname.split('/').pop().replace(/\.html$/i, '').toLowerCase();
+    const publicPage = currentPage === 'login' || currentPage === 'index' || currentPage === '';
 
     if (isSupabaseConfigured()) {
         const client = await getSupabaseClient();

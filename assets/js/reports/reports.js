@@ -6,6 +6,10 @@ import { formatCurrency } from '../utils/currency.js';
 import { formatDate } from '../utils/formatter.js';
 import ROUTES, { checkAuth } from '../config/routes.js';
 
+const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+})[character]);
+
 document.addEventListener('DOMContentLoaded', async () => {
     checkAuth();
     renderSidebar(ROUTES.REPORTS);
@@ -57,11 +61,11 @@ async function loadReport() {
         data: sales,
         renderRow: (s) => `
             <tr style="border-bottom: 1px solid var(--border-color);">
-                <td style="padding: 1rem; font-weight: 600; color: var(--primary);">${s.id}</td>
-                <td style="padding: 1rem;">${s.customerName}</td>
+                <td style="padding: 1rem; font-weight: 600; color: var(--primary);">${escapeHtml(s.id)}</td>
+                <td style="padding: 1rem;">${escapeHtml(s.customerName || 'Walk-in customer')}</td>
                 <td style="padding: 1rem; font-size: 0.875rem; color: var(--text-muted);">${formatDate(s.date)}</td>
-                <td style="padding: 1rem;"><span class="badge" style="background-color: var(--primary-light); color: var(--primary);">${s.paymentMethod}</span></td>
-                <td style="padding: 1rem; font-weight: 500;">${s.items.reduce((sum, item) => sum + item.quantity, 0)} items</td>
+                <td style="padding: 1rem;"><span class="badge" style="background-color: var(--primary-light); color: var(--primary);">${escapeHtml(s.paymentMethod)}</span></td>
+                <td style="padding: 1rem; font-weight: 500;">${(s.items || []).reduce((sum, item) => sum + Number(item.quantity || 0), 0)} items</td>
                 <td style="padding: 1rem; font-weight: 600;">${formatCurrency(s.total)}</td>
             </tr>
         `
@@ -91,7 +95,8 @@ async function exportToCSV() {
     csvContent += 'Transaction ID,Customer,Date,Payment Method,Total Amount\n';
 
     sales.forEach(s => {
-        csvContent += `${s.id},"${s.customerName}",${s.date},${s.paymentMethod},${s.total.toFixed(2)}\n`;
+        const csvCell = (value) => `"${String(value ?? '').replace(/"/g, '""')}"`;
+        csvContent += [s.id, s.customerName || 'Walk-in customer', s.date, s.paymentMethod, Number(s.total || 0).toFixed(2)].map(csvCell).join(',') + '\n';
     });
 
     const encodedUri = encodeURI(csvContent);

@@ -18,10 +18,29 @@
             <div id="navbar-container"></div>
             <div class="content-body">
                 <h2 style="font-weight: 600; font-size: 1.25rem; margin-bottom: 1.5rem;">Reports & Analytics</h2>
+
+                <div class="grid grid-cols-3 gap-4" style="margin-bottom: 1.5rem;">
+                    <div class="card"><div style="color: var(--text-muted);">Revenue</div><strong id="report-total-revenue" style="font-size: 1.5rem;">—</strong></div>
+                    <div class="card"><div style="color: var(--text-muted);">Transactions</div><strong id="report-total-transactions" style="font-size: 1.5rem;">—</strong></div>
+                    <div class="card"><div style="color: var(--text-muted);">Average sale</div><strong id="report-avg-order" style="font-size: 1.5rem;">—</strong></div>
+                </div>
+
+                <section class="card" style="margin-bottom: 2rem;" aria-labelledby="sales-report-heading">
+                    <div class="flex items-center justify-between gap-3" style="margin-bottom: 1rem; flex-wrap: wrap;">
+                        <div><h3 id="sales-report-heading" style="font-weight: 600; font-size: 1rem;">Sales report</h3><p style="font-size: 0.875rem; color: var(--text-muted);">Review and export completed sales for a selected date range.</p></div>
+                        <div class="flex items-end gap-2" style="flex-wrap: wrap;">
+                            <label style="font-size: .8rem;">From <input id="report-start-date" type="date" class="form-control" aria-label="Report start date"></label>
+                            <label style="font-size: .8rem;">To <input id="report-end-date" type="date" class="form-control" aria-label="Report end date"></label>
+                            <button id="filter-report-btn" class="btn btn-primary" type="button">Apply</button>
+                            <button id="export-report-btn" class="btn btn-secondary" type="button">Export CSV</button>
+                        </div>
+                    </div>
+                    <div id="reports-table-container" aria-live="polite"></div>
+                </section>
                 
                 <!-- Report Cards Grid -->
                 <div class="grid grid-cols-4 gap-4" style="margin-bottom: 2rem;">
-                    <div class="card" style="cursor: pointer; transition: var(--transition);" onclick="window.location.href='sales-report.html'">
+                    <div class="card" style="cursor: pointer; transition: var(--transition);" onclick="window.location.href='reports.html'">
                         <div style="display: flex; align-items: center; gap: 1rem;">
                             <div style="width: 48px; height: 48px; background-color: rgba(79, 70, 229, 0.1); color: var(--primary); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center;">
                                 <i data-lucide="trending-up" style="width: 24px; height: 24px;"></i>
@@ -33,7 +52,7 @@
                         </div>
                     </div>
                     
-                    <div class="card" style="cursor: pointer; transition: var(--transition);" onclick="window.location.href='inventory-report.html'">
+                    <div class="card" style="cursor: pointer; transition: var(--transition);" onclick="window.location.href='inventory.html'">
                         <div style="display: flex; align-items: center; gap: 1rem;">
                             <div style="width: 48px; height: 48px; background-color: rgba(16, 185, 129, 0.1); color: var(--success); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center;">
                                 <i data-lucide="package" style="width: 24px; height: 24px;"></i>
@@ -45,7 +64,7 @@
                         </div>
                     </div>
                     
-                    <div class="card" style="cursor: pointer; transition: var(--transition);" onclick="window.location.href='profit-loss.html'">
+                    <div class="card" style="cursor: pointer; transition: var(--transition);" onclick="window.location.href='finance.html'">
                         <div style="display: flex; align-items: center; gap: 1rem;">
                             <div style="width: 48px; height: 48px; background-color: rgba(245, 158, 11, 0.1); color: var(--warning); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center;">
                                 <i data-lucide="dollar-sign" style="width: 24px; height: 24px;"></i>
@@ -57,14 +76,14 @@
                         </div>
                     </div>
                     
-                    <div class="card" style="cursor: pointer; transition: var(--transition);" onclick="window.location.href='tax-report.html'">
+                    <div class="card" style="cursor: pointer; transition: var(--transition);" onclick="window.location.href='finance.html'">
                         <div style="display: flex; align-items: center; gap: 1rem;">
                             <div style="width: 48px; height: 48px; background-color: rgba(239, 68, 68, 0.1); color: var(--danger); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center;">
                                 <i data-lucide="file-text" style="width: 24px; height: 24px;"></i>
                             </div>
                             <div>
-                                <h4 style="font-weight: 600; font-size: 0.875rem; margin-bottom: 0.25rem;">Tax Report</h4>
-                                <p style="font-size: 0.75rem; color: var(--text-muted);">Tax summary & records</p>
+                                <h4 style="font-weight: 600; font-size: 0.875rem; margin-bottom: 0.25rem;">Finance Overview</h4>
+                                <p style="font-size: 0.75rem; color: var(--text-muted);">Revenue, expenses & net profit</p>
                             </div>
                         </div>
                     </div>
@@ -72,62 +91,62 @@
 
                 <!-- Additional Reports -->
                 <div class="grid grid-cols-3 gap-4">
-                    <div class="card" style="cursor: pointer;" onclick="window.location.href='customer-report.html'">
+                    <div class="card" style="cursor: pointer;" onclick="window.location.href='customers.html'">
                         <div class="flex items-center gap-3">
                             <i data-lucide="users" style="width: 20px; height: 20px; color: var(--primary);"></i>
                             <div>
-                                <h4 style="font-weight: 600; font-size: 0.875rem;">Customer Report</h4>
-                                <p style="font-size: 0.75rem; color: var(--text-muted);">Customer analytics</p>
+                                <h4 style="font-weight: 600; font-size: 0.875rem;">Customers</h4>
+                                <p style="font-size: 0.75rem; color: var(--text-muted);">Review customer records</p>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="card" style="cursor: pointer;" onclick="window.location.href='supplier-report.html'">
+                    <div class="card" style="cursor: pointer;" onclick="window.location.href='suppliers.html'">
                         <div class="flex items-center gap-3">
                             <i data-lucide="truck" style="width: 20px; height: 20px; color: var(--success);"></i>
                             <div>
-                                <h4 style="font-weight: 600; font-size: 0.875rem;">Supplier Report</h4>
-                                <p style="font-size: 0.75rem; color: var(--text-muted);">Supplier performance</p>
+                                <h4 style="font-weight: 600; font-size: 0.875rem;">Suppliers</h4>
+                                <p style="font-size: 0.75rem; color: var(--text-muted);">Review supplier records</p>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="card" style="cursor: pointer;" onclick="window.location.href='expense-report.html'">
+                    <div class="card" style="cursor: pointer;" onclick="window.location.href='expenses.html'">
                         <div class="flex items-center gap-3">
                             <i data-lucide="receipt" style="width: 20px; height: 20px; color: var(--danger);"></i>
                             <div>
-                                <h4 style="font-weight: 600; font-size: 0.875rem;">Expense Report</h4>
-                                <p style="font-size: 0.75rem; color: var(--text-muted);">Expense tracking</p>
+                                <h4 style="font-weight: 600; font-size: 0.875rem;">Expenses</h4>
+                                <p style="font-size: 0.75rem; color: var(--text-muted);">Review recorded expenses</p>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="card" style="cursor: pointer;" onclick="window.location.href='employee-report.html'">
+                    <div class="card" style="cursor: pointer;" onclick="window.location.href='employees.html'">
                         <div class="flex items-center gap-3">
                             <i data-lucide="user-check" style="width: 20px; height: 20px; color: var(--info);"></i>
                             <div>
-                                <h4 style="font-weight: 600; font-size: 0.875rem;">Employee Report</h4>
-                                <p style="font-size: 0.75rem; color: var(--text-muted);">Staff performance</p>
+                                <h4 style="font-weight: 600; font-size: 0.875rem;">Employees</h4>
+                                <p style="font-size: 0.75rem; color: var(--text-muted);">Review staff records</p>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="card" style="cursor: pointer;" onclick="window.location.href='inventory-report.html'">
+                    <div class="card" style="cursor: pointer;" onclick="window.location.href='inventory.html'">
                         <div class="flex items-center gap-3">
                             <i data-lucide="alert-triangle" style="width: 20px; height: 20px; color: var(--warning);"></i>
                             <div>
-                                <h4 style="font-weight: 600; font-size: 0.875rem;">Low Stock Report</h4>
-                                <p style="font-size: 0.75rem; color: var(--text-muted);">Items to reorder</p>
+                                <h4 style="font-weight: 600; font-size: 0.875rem;">Inventory</h4>
+                                <p style="font-size: 0.75rem; color: var(--text-muted);">Review stock levels and low items</p>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="card" style="cursor: pointer;" onclick="window.location.href='#'">
+                    <div class="card" style="cursor: pointer;" onclick="document.getElementById('export-report-btn').click()">
                         <div class="flex items-center gap-3">
                             <i data-lucide="download" style="width: 20px; height: 20px; color: var(--success);"></i>
                             <div>
-                                <h4 style="font-weight: 600; font-size: 0.875rem;">Export All</h4>
-                                <p style="font-size: 0.75rem; color: var(--text-muted);">Download CSV reports</p>
+                                <h4 style="font-weight: 600; font-size: 0.875rem;">Export Sales</h4>
+                                <p style="font-size: 0.75rem; color: var(--text-muted);">Download the selected range as CSV</p>
                             </div>
                         </div>
                     </div>

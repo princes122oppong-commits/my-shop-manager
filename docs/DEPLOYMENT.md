@@ -2,16 +2,17 @@
 
 ## Before deployment
 
-1. Run [supabase-schema.sql](./supabase-schema.sql) in the Supabase SQL Editor.
+1. Run [supabase-schema.sql](../database/supabase-schema.sql) in the Supabase SQL Editor.
 2. Deploy the application onboarding and organization-aware service changes.
-3. Run [supabase-saas-migration.sql](./supabase-saas-migration.sql).
+3. Run [supabase-saas-migration.sql](../database/supabase-saas-migration.sql).
+   Re-run this migration after pulling updates so the owner/admin role and subscription-field protections are applied to the live database.
 4. Create the first Supabase Auth user and promote it to an administrator.
-5. Confirm that the first user can create an organization from [onboarding.html](./onboarding.html).
+5. Confirm that the first user can create an organization from [onboarding.html](../onboarding.html).
 6. Test product creation, customer creation, inventory movement, expense creation, and a POS sale.
 
 ## Vercel
 
-The project is a static browser application and includes [vercel.json](./vercel.json). Deploy the repository directly from GitHub:
+The project is a static browser application and includes [vercel.json](../vercel.json). Deploy the repository directly from GitHub:
 
 ```powershell
 npx vercel

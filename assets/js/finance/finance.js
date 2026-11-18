@@ -48,11 +48,11 @@ async function loadFinancialOverview() {
         <div style="margin-top: 2rem; padding: 1.5rem; border-radius: var(--radius-sm); background-color: var(--bg-main); border: 1px solid var(--border-color);">
             <h4 style="font-weight: 600; font-size: 1rem; margin-bottom: 1rem;">Quick Actions</h4>
             <div class="flex gap-2">
-                <a href="daily-cash-book.html" class="btn btn-primary">
+                <a href="sales.html" class="btn btn-primary">
                     <i data-lucide="book-open" style="width: 16px; height: 16px;"></i>
                     <span>Daily Cash Book</span>
                 </a>
-                <a href="transactions.html" class="btn btn-secondary">
+                <a href="reports.html" class="btn btn-secondary">
                     <i data-lucide="list" style="width: 16px; height: 16px;"></i>
                     <span>View Transactions</span>
                 </a>

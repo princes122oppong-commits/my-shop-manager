@@ -920,11 +920,11 @@
             
             <!-- Tabs for Screenshots -->
             <div class="screenshot-tabs" style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 3rem; flex-wrap: wrap;">
-                <button class="tab-btn active" onclick="switchTab('dashboard')" style="padding: 0.75rem 1.5rem; font-weight: 600; border-radius: 9999px; background-color: var(--primary-blue); color: white; border: none; cursor: pointer; transition: var(--transition);">Dashboard</button>
-                <button class="tab-btn" onclick="switchTab('pos')" style="padding: 0.75rem 1.5rem; font-weight: 600; border-radius: 9999px; background-color: var(--white); color: var(--text-muted); border: 1px solid var(--border-color); cursor: pointer; transition: var(--transition);">POS Screen</button>
-                <button class="tab-btn" onclick="switchTab('products')" style="padding: 0.75rem 1.5rem; font-weight: 600; border-radius: 9999px; background-color: var(--white); color: var(--text-muted); border: 1px solid var(--border-color); cursor: pointer; transition: var(--transition);">Products</button>
-                <button class="tab-btn" onclick="switchTab('inventory')" style="padding: 0.75rem 1.5rem; font-weight: 600; border-radius: 9999px; background-color: var(--white); color: var(--text-muted); border: 1px solid var(--border-color); cursor: pointer; transition: var(--transition);">Inventory</button>
-                <button class="tab-btn" onclick="switchTab('reports')" style="padding: 0.75rem 1.5rem; font-weight: 600; border-radius: 9999px; background-color: var(--white); color: var(--text-muted); border: 1px solid var(--border-color); cursor: pointer; transition: var(--transition);">Reports</button>
+                <button class="tab-btn active" onclick="switchTab(event, 'dashboard')" style="padding: 0.75rem 1.5rem; font-weight: 600; border-radius: 9999px; background-color: var(--primary-blue); color: white; border: none; cursor: pointer; transition: var(--transition);">Dashboard</button>
+                <button class="tab-btn" onclick="switchTab(event, 'pos')" style="padding: 0.75rem 1.5rem; font-weight: 600; border-radius: 9999px; background-color: var(--white); color: var(--text-muted); border: 1px solid var(--border-color); cursor: pointer; transition: var(--transition);">POS Screen</button>
+                <button class="tab-btn" onclick="switchTab(event, 'products')" style="padding: 0.75rem 1.5rem; font-weight: 600; border-radius: 9999px; background-color: var(--white); color: var(--text-muted); border: 1px solid var(--border-color); cursor: pointer; transition: var(--transition);">Products</button>
+                <button class="tab-btn" onclick="switchTab(event, 'inventory')" style="padding: 0.75rem 1.5rem; font-weight: 600; border-radius: 9999px; background-color: var(--white); color: var(--text-muted); border: 1px solid var(--border-color); cursor: pointer; transition: var(--transition);">Inventory</button>
+                <button class="tab-btn" onclick="switchTab(event, 'reports')" style="padding: 0.75rem 1.5rem; font-weight: 600; border-radius: 9999px; background-color: var(--white); color: var(--text-muted); border: 1px solid var(--border-color); cursor: pointer; transition: var(--transition);">Reports</button>
             </div>
 
             <!-- Screenshot Display Frame -->
@@ -1310,7 +1310,7 @@
             reports: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1000&q=80'
         };
 
-        function switchTab(tabName) {
+        function switchTab(event, tabName) {
             // Update active tab button
             const buttons = document.querySelectorAll('.tab-btn');
             buttons.forEach(btn => {

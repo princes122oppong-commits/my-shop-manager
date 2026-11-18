@@ -97,7 +97,7 @@ AS $$
         WHERE organization_id = target_organization_id
           AND user_id = auth.uid()
           AND is_active = true
-          AND role IN ('owner', 'admin', 'manager')
+          AND role IN ('owner', 'admin')
     );
 $$;
 
@@ -144,7 +144,13 @@ DROP POLICY IF EXISTS "Organization admins can update organizations" ON public.o
 CREATE POLICY "Members can view organizations" ON public.organizations FOR SELECT TO authenticated
     USING (public.is_organization_member(id));
 CREATE POLICY "Users can create organizations" ON public.organizations FOR INSERT TO authenticated
-    WITH CHECK (owner_id = auth.uid());
+    WITH CHECK (
+        owner_id = auth.uid()
+        AND plan = 'trial'
+        AND subscription_status = 'trialing'
+        AND trial_ends_at > NOW()
+        AND trial_ends_at <= NOW() + INTERVAL '14 days'
+    );
 CREATE POLICY "Organization admins can update organizations" ON public.organizations FOR UPDATE TO authenticated
     USING (public.is_organization_admin(id))
     WITH CHECK (public.is_organization_admin(id));
@@ -168,6 +174,40 @@ CREATE POLICY "Users can join organizations" ON public.organization_members FOR 
 CREATE POLICY "Organization admins can manage memberships" ON public.organization_members FOR ALL TO authenticated
     USING (public.is_organization_admin(organization_id))
     WITH CHECK (public.is_organization_admin(organization_id));
+
+-- Subscription and ownership fields are controlled by trusted server-side
+-- billing operations. Browser clients can create only the standard trial.
+CREATE OR REPLACE FUNCTION public.protect_organization_billing_fields()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF auth.role() = 'service_role' THEN
+        RETURN NEW;
+    END IF;
+
+    IF TG_OP = 'INSERT' THEN
+        IF NEW.owner_id IS DISTINCT FROM auth.uid()
+           OR NEW.plan IS DISTINCT FROM 'trial'
+           OR NEW.subscription_status IS DISTINCT FROM 'trialing'
+           OR NEW.trial_ends_at IS NULL
+           OR NEW.trial_ends_at <= NOW()
+           OR NEW.trial_ends_at > NOW() + INTERVAL '14 days' THEN
+            RAISE EXCEPTION 'Organizations must be created with the standard trial';
+        END IF;
+    ELSIF NEW.owner_id IS DISTINCT FROM OLD.owner_id
+       OR NEW.plan IS DISTINCT FROM OLD.plan
+       OR NEW.subscription_status IS DISTINCT FROM OLD.subscription_status
+       OR NEW.trial_ends_at IS DISTINCT FROM OLD.trial_ends_at THEN
+        RAISE EXCEPTION 'Only trusted billing operations can change organization ownership or subscription fields';
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+DROP TRIGGER IF EXISTS trigger_protect_organization_billing_fields ON public.organizations;
+CREATE TRIGGER trigger_protect_organization_billing_fields
+    BEFORE INSERT OR UPDATE ON public.organizations
+    FOR EACH ROW EXECUTE FUNCTION public.protect_organization_billing_fields();
 
 -- Replace broad policies with organization-scoped access and role-aware writes.
 DO $$

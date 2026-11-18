@@ -51,7 +51,7 @@ Use the pre-seeded demo credentials to log in:
 ## ⚙️ Supabase Setup (Optional)
 To use Supabase as the production backend:
 
-1. Create a Supabase project and run [supabase-schema.sql](./supabase-schema.sql) in the SQL Editor.
+1. Create a Supabase project and run [supabase-schema.sql](./database/supabase-schema.sql) in the SQL Editor.
 2. Configure the project Auth URL and email settings.
 3. Serve the application from a web server; ES modules do not work reliably from `file://` URLs.
 4. Open **Settings** in the sidebar.
@@ -60,3 +60,5 @@ To use Supabase as the production backend:
 When Supabase credentials are configured, login, registration, password recovery, and password updates use Supabase Auth. Without credentials, the app remains available in offline demo mode using browser LocalStorage.
 
 Before inviting real users, review the RLS policies in the schema and narrow them to your staff roles and branches.
+
+For detailed instructions, see [Supabase setup](./docs/SUPABASE_SETUP.md) and the [hosted deployment guide](./docs/DEPLOYMENT.md).
