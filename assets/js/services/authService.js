@@ -27,6 +27,15 @@ export const authService = {
     },
 
     async login(email, password) {
+        // Keep the public demo usable even when a hosted Supabase project is
+        // configured in runtime.js. Demo accounts are intentionally local and
+        // must not depend on network access or a matching Auth user.
+        const isDemoAccount = (email === 'admin@joetech.com' && password === 'admin')
+            || (email === 'cashier@joetech.com' && password === 'cashier');
+        if (isDemoAccount) {
+            localStorage.setItem('SUPABASE_OFFLINE_MODE', 'true');
+        }
+
         const client = await getSupabaseClient();
         if (client) {
             const { data, error } = await client.auth.signInWithPassword({ email, password });

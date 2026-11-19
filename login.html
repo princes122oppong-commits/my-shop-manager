@@ -64,12 +64,22 @@
                 <i data-lucide="arrow-right" style="width: 18px; height: 18px;"></i>
             </button>
         </form>
-        <div style="margin-top: 1.5rem; text-align: center; font-size: 0.875rem; color: var(--text-muted);">
+        <div id="demo-credentials" style="margin-top: 1.5rem; text-align: center; font-size: 0.875rem; color: var(--text-muted);">
             <p>Demo Credentials:</p>
             <p style="font-weight: 500; color: var(--text-main);">admin@joetech.com / admin</p>
+            <p style="margin-top: 0.35rem; font-size: 0.8rem;">The demo runs in this browser and does not require a database connection.</p>
         </div>
     </div>
 
+    <script>
+        if (window.location.protocol === 'file:') {
+            const notice = document.createElement('div');
+            notice.setAttribute('role', 'alert');
+            notice.style.cssText = 'position:fixed;left:1rem;right:1rem;bottom:1rem;padding:1rem;border-radius:8px;background:#fff7ed;color:#9a3412;border:1px solid #fdba74;font:14px/1.5 Arial,sans-serif;z-index:10';
+            notice.innerHTML = '<strong>Start the demo server first.</strong><br>Double-click <code>start-demo.cmd</code>, then open <a href="http://127.0.0.1:5173/login.html">http://127.0.0.1:5173/login.html</a>.';
+            document.body.appendChild(notice);
+        }
+    </script>
     <script type="module" src="assets/js/auth/login.js"></script>
 </body>
 

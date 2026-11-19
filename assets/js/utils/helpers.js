@@ -1,4 +1,6 @@
 import CONSTANTS from '../config/constants.js';
+import { getSupabaseClient } from '../services/supabase.js';
+import { organizationService } from '../services/organizationService.js';
 
 export function generateId() {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
@@ -7,9 +9,11 @@ export function generateId() {
 export function addAuditLog(action, details) {
     const currentUser = JSON.parse(localStorage.getItem(CONSTANTS.STORAGE_KEYS.CURRENT_USER) || '{"name":"System"}');
     const logs = JSON.parse(localStorage.getItem(CONSTANTS.STORAGE_KEYS.AUDIT_LOGS) || '[]');
+    const organizationId = organizationService.getCurrentOrganizationId();
     
     logs.push({
         id: generateId(),
+        organizationId,
         action,
         details,
         user: currentUser.name,
@@ -20,10 +24,36 @@ export function addAuditLog(action, details) {
     });
 
     localStorage.setItem(CONSTANTS.STORAGE_KEYS.AUDIT_LOGS, JSON.stringify(logs));
+
+    if (organizationId) {
+        void getSupabaseClient().then(async client => {
+            if (!client) return;
+            const { error } = await client.rpc('record_audit_event', {
+                p_organization_id: organizationId,
+                p_action: action,
+                p_details: details,
+                p_metadata: null
+            });
+            if (error) console.error('Could not save the audit event:', error.message);
+        }).catch(error => console.error('Could not save the audit event:', error.message));
+    }
 }
 
-export function getAuditLogs() {
-    return JSON.parse(localStorage.getItem(CONSTANTS.STORAGE_KEYS.AUDIT_LOGS) || '[]');
+export async function getAuditLogs() {
+    const organizationId = organizationService.getCurrentOrganizationId();
+    const client = await getSupabaseClient();
+    if (client) {
+        if (!organizationId) return [];
+        const { data, error } = await client.from('audit_logs').select('id, user_name, user_email, action, details, created_at')
+            .eq('organization_id', organizationId).order('created_at', { ascending: false }).limit(500);
+        if (error) throw error;
+        return (data || []).map(log => ({
+            id: log.id, user: log.user_name, email: log.user_email,
+            action: log.action, details: log.details, timestamp: log.created_at
+        }));
+    }
+    return JSON.parse(localStorage.getItem(CONSTANTS.STORAGE_KEYS.AUDIT_LOGS) || '[]')
+        .filter(log => !organizationId || log.organizationId === organizationId);
 }
 
 export function formatDate(date) {

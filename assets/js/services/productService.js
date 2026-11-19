@@ -5,9 +5,10 @@ import { subscriptionService } from './subscriptionService.js';
 import { branchService } from './organizationService.js';
 
 async function applyBranchStock(client, products) {
+    const organizationId = organizationService.getCurrentOrganizationId();
     const branchId = branchService.getCurrentBranchId();
-    if (!branchId || !products.length) return products;
-    const { data, error } = await client.from('branch_inventory').select('product_id, stock').eq('branch_id', branchId);
+    if (!organizationId || !branchId || !products.length) return products;
+    const { data, error } = await client.from('branch_inventory').select('product_id, stock').eq('organization_id', organizationId).eq('branch_id', branchId);
     if (error) {
         if (error.code === '42P01' || error.code === 'PGRST205') return products;
         throw error;
@@ -43,7 +44,9 @@ function mapProduct(row) {
 
 async function resolveCategoryId(client, category) {
     if (!category || typeof category !== 'string') return null;
-    const { data } = await client.from('categories').select('id').eq('name', category).maybeSingle();
+    const organizationId = organizationService.getCurrentOrganizationId();
+    if (!organizationId) throw new Error('Select a store before managing products.');
+    const { data } = await client.from('categories').select('id').eq('organization_id', organizationId).eq('name', category).maybeSingle();
     if (data?.id) return data.id;
     const { data: created, error } = await client.from('categories').insert({
         name: category,
@@ -126,9 +129,12 @@ export const productService = {
     async getAll() {
         const client = await getSupabaseClient();
         if (client) {
+            const organizationId = organizationService.getCurrentOrganizationId();
+            if (!organizationId) return [];
             const { data, error } = await client
                 .from('products')
                 .select('*, categories(name)')
+                .eq('organization_id', organizationId)
                 .eq('is_active', true)
                 .order('created_at', { ascending: false });
             if (error) throw error;
@@ -151,9 +157,15 @@ export const productService = {
     async create(productData) {
         const client = await getSupabaseClient();
         if (client) {
+            const organizationId = organizationService.getCurrentOrganizationId();
+            if (!organizationId) throw new Error('Select a store before creating products.');
             await subscriptionService.assertCanCreate('product');
+            const stock = Number(productData.stock || 0);
+            if (!Number.isInteger(stock) || stock < 0) throw new Error('Initial stock must be a non-negative whole number.');
+            const branchId = branchService.getCurrentBranchId();
+            if (stock > 0 && !branchId) throw new Error('Select an active branch before entering initial stock.');
             const { data, error } = await client.from('products').insert({
-                organization_id: organizationService.getCurrentOrganizationId(),
+                organization_id: organizationId,
                 name: productData.name,
                 sku: productData.sku,
                 barcode: productData.barcode || null,
@@ -166,14 +178,15 @@ export const productService = {
                 is_active: true
             }).select('*, categories(name)').single();
             if (error) throw error;
-            const branchId = branchService.getCurrentBranchId();
-            const stock = Number(productData.stock || 0);
-            if (branchId) {
-                const { error: inventoryError } = await client.from('branch_inventory').upsert({
-                    organization_id: organizationService.getCurrentOrganizationId(), branch_id: branchId,
-                    product_id: data.id, stock, updated_at: new Date().toISOString()
-                }, { onConflict: 'branch_id,product_id' });
-                if (inventoryError && inventoryError.code !== '42P01' && inventoryError.code !== 'PGRST205') throw inventoryError;
+            if (branchId && stock > 0) {
+                const { error: inventoryError } = await client.rpc('adjust_branch_inventory', {
+                    p_organization_id: organizationId, p_branch_id: branchId, p_product_id: data.id,
+                    p_type: 'IN', p_quantity: stock, p_reason: 'Initial stock on product creation'
+                });
+                if (inventoryError) {
+                    await client.from('products').delete().eq('organization_id', organizationId).eq('id', data.id);
+                    throw inventoryError;
+                }
             }
             return { ...mapProduct(data), stock };
         }
@@ -195,6 +208,8 @@ export const productService = {
     async update(id, productData) {
         const client = await getSupabaseClient();
         if (client) {
+            const organizationId = organizationService.getCurrentOrganizationId();
+            if (!organizationId) throw new Error('Select a store before updating products.');
             const payload = {
                 name: productData.name,
                 sku: productData.sku,
@@ -204,16 +219,8 @@ export const productService = {
                 cost: Number(productData.cost),
                 min_stock: Number(productData.minStock)
             };
-            const { data, error } = await client.from('products').update(payload).eq('id', id).select('*, categories(name)').single();
+            const { data, error } = await client.from('products').update(payload).eq('organization_id', organizationId).eq('id', id).select('*, categories(name)').single();
             if (error) throw error;
-            const branchId = branchService.getCurrentBranchId();
-            if (branchId && productData.stock !== undefined) {
-                const { error: inventoryError } = await client.from('branch_inventory').upsert({
-                    organization_id: organizationService.getCurrentOrganizationId(), branch_id: branchId,
-                    product_id: id, stock: Math.max(0, Number(productData.stock)), updated_at: new Date().toISOString()
-                }, { onConflict: 'branch_id,product_id' });
-                if (inventoryError && inventoryError.code !== '42P01' && inventoryError.code !== 'PGRST205') throw inventoryError;
-            }
             return { ...mapProduct(data), stock: Number(productData.stock ?? data.stock) };
         }
 
@@ -225,7 +232,7 @@ export const productService = {
                 ...productData,
                 price: parseFloat(productData.price),
                 cost: parseFloat(productData.cost),
-                stock: parseInt(productData.stock),
+                stock: productData.stock === undefined ? products[index].stock : parseInt(productData.stock),
                 minStock: parseInt(productData.minStock)
             };
             localStorage.setItem(CONSTANTS.STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
@@ -237,7 +244,9 @@ export const productService = {
     async delete(id) {
         const client = await getSupabaseClient();
         if (client) {
-            const { error } = await client.from('products').update({ is_active: false }).eq('id', id);
+            const organizationId = organizationService.getCurrentOrganizationId();
+            if (!organizationId) throw new Error('Select a store before updating products.');
+            const { error } = await client.from('products').update({ is_active: false }).eq('organization_id', organizationId).eq('id', id);
             if (error) throw error;
             return true;
         }
@@ -251,27 +260,7 @@ export const productService = {
     async updateStock(id, quantityChange) {
         const client = await getSupabaseClient();
         if (client) {
-            const branchId = branchService.getCurrentBranchId();
-            const { data: product, error: readError } = await client.from('branch_inventory').select('stock').eq('product_id', id).eq('branch_id', branchId).maybeSingle();
-            if (readError && readError.code !== '42P01' && readError.code !== 'PGRST205') throw readError;
-            if (!branchId || (readError && (readError.code === '42P01' || readError.code === 'PGRST205'))) {
-                const { data: legacyProduct, error: legacyError } = await client.from('products').select('stock').eq('id', id).single();
-                if (legacyError) throw legacyError;
-                const stock = Number(legacyProduct.stock) + Number(quantityChange);
-                if (stock < 0) throw new Error('Insufficient stock.');
-                const { data, error } = await client.from('products').update({ stock }).eq('id', id).select('*, categories(name)').single();
-                if (error) throw error;
-                return mapProduct(data);
-            }
-            const stock = Number(product?.stock || 0) + Number(quantityChange);
-            if (stock < 0) throw new Error('Insufficient stock.');
-            const { error: writeError } = await client.from('branch_inventory').upsert({
-                organization_id: organizationService.getCurrentOrganizationId(), branch_id: branchId,
-                product_id: id, stock, updated_at: new Date().toISOString()
-            }, { onConflict: 'branch_id,product_id' });
-            if (writeError) throw writeError;
-            const productData = await this.getById(id);
-            return { ...productData, stock };
+            throw new Error('Hosted stock changes must use inventoryService.addMovement so the stock ledger stays in sync.');
         }
 
         const products = await this.getAll();

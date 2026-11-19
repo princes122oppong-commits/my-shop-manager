@@ -31,8 +31,10 @@ export const notificationService = {
     async getAll() {
         const client = await getSupabaseClient();
         if (client) {
+            const organizationId = organizationService.getCurrentOrganizationId();
+            if (!organizationId) return [];
             const { data, error } = await client.from('notifications')
-                .select('*').order('created_at', { ascending: false });
+                .select('*').eq('organization_id', organizationId).order('created_at', { ascending: false });
             if (error) throw error;
             return (data || []).map(item => ({
                 id: item.id,
@@ -55,9 +57,11 @@ export const notificationService = {
     async create(notification) {
         const client = await getSupabaseClient();
         if (client) {
+            const organizationId = organizationService.getCurrentOrganizationId();
+            if (!organizationId) throw new Error('Select a store before creating notifications.');
             const { data: userData } = await client.auth.getUser();
             const { error } = await client.from('notifications').insert({
-                organization_id: organizationService.getCurrentOrganizationId(),
+                organization_id: organizationId,
                 user_id: userData?.user?.id || null,
                 type: notification.type,
                 title: notification.title,
@@ -69,7 +73,7 @@ export const notificationService = {
             return;
         }
         this.init();
-        const notifications = this.getAll();
+        const notifications = await this.getAll();
         notifications.unshift({
             id: Date.now().toString(),
             ...notification,
@@ -82,12 +86,14 @@ export const notificationService = {
     async markAsRead(id) {
         const client = await getSupabaseClient();
         if (client) {
-            const { error } = await client.from('notifications').update({ is_read: true, read_at: new Date().toISOString() }).eq('id', id);
+            const organizationId = organizationService.getCurrentOrganizationId();
+            if (!organizationId) return;
+            const { error } = await client.from('notifications').update({ is_read: true, read_at: new Date().toISOString() }).eq('organization_id', organizationId).eq('id', id);
             if (error) throw error;
             return;
         }
         this.init();
-        const notifications = this.getAll();
+        const notifications = await this.getAll();
         const notification = notifications.find(n => n.id === id);
         if (notification) {
             notification.read = true;
@@ -99,20 +105,31 @@ export const notificationService = {
         const client = await getSupabaseClient();
         if (client) {
             const { data: userData } = await client.auth.getUser();
+            const organizationId = organizationService.getCurrentOrganizationId();
+            if (!organizationId) return;
             const { error } = await client.from('notifications').update({ is_read: true, read_at: new Date().toISOString() })
+                .eq('organization_id', organizationId)
                 .eq('user_id', userData?.user?.id || '00000000-0000-0000-0000-000000000000');
             if (error) throw error;
             return;
         }
         this.init();
-        const notifications = this.getAll();
+        const notifications = await this.getAll();
         notifications.forEach(n => n.read = true);
         localStorage.setItem(CONSTANTS.STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(notifications));
     },
 
-    delete(id) {
+    async delete(id) {
+        const client = await getSupabaseClient();
+        if (client) {
+            const organizationId = organizationService.getCurrentOrganizationId();
+            if (!organizationId) return;
+            const { error } = await client.from('notifications').delete().eq('organization_id', organizationId).eq('id', id);
+            if (error) throw error;
+            return;
+        }
         this.init();
-        const notifications = this.getAll().filter(n => n.id !== id);
+        const notifications = (await this.getAll()).filter(n => n.id !== id);
         localStorage.setItem(CONSTANTS.STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(notifications));
     },
 

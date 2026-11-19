@@ -7,6 +7,8 @@ import { organizationService } from '../services/organizationService.js';
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('login-form');
     if (!form) return;
+    // Keep the demo credentials visible on hosted builds. Entering one of the
+    // seeded demo accounts switches the current browser to offline mode.
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();

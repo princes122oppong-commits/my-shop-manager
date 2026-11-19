@@ -31,6 +31,8 @@ npm start
 ```
 Then open `http://127.0.0.1:5173`.
 
+On Windows, you can also double-click `start-demo.cmd`, then open `http://127.0.0.1:5173/login.html`. Do not open the HTML files directly with `file://`; browsers block the ES module imports required by the app.
+
 The server also listens on the local network and prints a network URL when it starts. Open that URL from another device connected to the same Wi-Fi or LAN. If Windows Firewall prompts you, allow Node.js on Private networks.
 
 On Windows PowerShell systems that block `npm.ps1`, use `npm.cmd start`.

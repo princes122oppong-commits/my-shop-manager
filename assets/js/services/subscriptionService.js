@@ -35,9 +35,9 @@ export const subscriptionService = {
         monthStart.setUTCDate(1);
         monthStart.setUTCHours(0, 0, 0, 0);
         const [products, users, sales] = await Promise.all([
-            client.from('products').select('id', { count: 'exact', head: true }),
+            client.from('products').select('id', { count: 'exact', head: true }).eq('organization_id', organizationId),
             client.from('organization_members').select('id', { count: 'exact', head: true }).eq('organization_id', organizationId).eq('is_active', true),
-            client.from('sales').select('id', { count: 'exact', head: true }).gte('created_at', monthStart.toISOString())
+            client.from('sales').select('id', { count: 'exact', head: true }).eq('organization_id', organizationId).gte('created_at', monthStart.toISOString())
         ]);
         for (const result of [products, users, sales]) if (result.error) throw result.error;
         return { products: products.count || 0, users: users.count || 0, monthlySales: sales.count || 0 };

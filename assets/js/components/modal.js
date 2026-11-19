@@ -50,6 +50,11 @@ export function createModal({ id, title, content, onSubmit, submitText = 'Save',
         e.preventDefault();
         if (onSubmit) {
             const formData = new FormData(form);
+            form.querySelectorAll('input[id], select[id], textarea[id]').forEach(field => {
+                if (field.name || field.disabled || formData.has(field.id)) return;
+                const key = field.id.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+                formData.set(key, field.type === 'checkbox' ? field.checked : field.value);
+            });
             const data = Object.fromEntries(formData.entries());
             await onSubmit(data, close);
         }

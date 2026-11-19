@@ -5,17 +5,17 @@ import { getAuditLogs } from '../utils/helpers.js';
 import { formatDateTime } from '../utils/helpers.js';
 import ROUTES, { checkAuth } from '../config/routes.js';
 
-document.addEventListener('DOMContentLoaded', () => {
-    checkAuth();
+document.addEventListener('DOMContentLoaded', async () => {
+    if (!await checkAuth()) return;
     renderSidebar(ROUTES.AUDIT_LOGS);
     renderNavbar('Audit Logs');
-    loadAuditLogs();
+    await loadAuditLogs();
 
     document.getElementById('refresh-logs-btn')?.addEventListener('click', loadAuditLogs);
 });
 
-function loadAuditLogs() {
-    const logs = getAuditLogs();
+async function loadAuditLogs() {
+    const logs = await getAuditLogs();
     
     if (logs.length === 0) {
         document.getElementById('audit-logs-table-container').innerHTML = `

@@ -138,8 +138,8 @@ async function openProductModal(productId = null) {
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <div class="form-group">
-                    <label class="form-label">Stock Quantity</label>
-                    <input type="number" id="product-stock" class="form-control" value="${product?.stock || 0}" required>
+                    <label class="form-label">${isEdit ? 'Current Stock (adjust in Inventory)' : 'Initial Stock'}</label>
+                    <input type="number" id="product-stock" class="form-control" value="${product?.stock || 0}" ${isEdit ? 'disabled' : 'min="0"'} required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Min Stock Level</label>
@@ -155,7 +155,7 @@ async function openProductModal(productId = null) {
                 category: data.productCategory,
                 price: parseFloat(data.productPrice),
                 cost: parseFloat(data.productCost),
-                stock: parseInt(data.productStock),
+                stock: isEdit ? undefined : parseInt(data.productStock),
                 minStock: parseInt(data.productMinStock)
             };
 

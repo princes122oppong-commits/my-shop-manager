@@ -53,7 +53,9 @@ export const customerService = {
     async getAll() {
         const client = await getSupabaseClient();
         if (client) {
-            const { data, error } = await client.from('customers').select('*').eq('is_active', true).order('created_at', { ascending: false });
+            const organizationId = organizationService.getCurrentOrganizationId();
+            if (!organizationId) return [];
+            const { data, error } = await client.from('customers').select('*').eq('organization_id', organizationId).eq('is_active', true).order('created_at', { ascending: false });
             if (error) throw error;
             return (data || []).map(mapCustomer);
         }
@@ -78,8 +80,10 @@ export const customerService = {
     async create(customerData) {
         const client = await getSupabaseClient();
         if (client) {
+            const organizationId = organizationService.getCurrentOrganizationId();
+            if (!organizationId) throw new Error('Select a store before creating customers.');
             const { data, error } = await client.from('customers').insert({
-                organization_id: organizationService.getCurrentOrganizationId(),
+                organization_id: organizationId,
                 name: customerData.name,
                 email: customerData.email || null,
                 phone: customerData.phone,
@@ -108,12 +112,14 @@ export const customerService = {
     async update(id, customerData) {
         const client = await getSupabaseClient();
         if (client) {
+            const organizationId = organizationService.getCurrentOrganizationId();
+            if (!organizationId) throw new Error('Select a store before updating customers.');
             const { data, error } = await client.from('customers').update({
                 name: customerData.name,
                 email: customerData.email || null,
                 phone: customerData.phone,
                 address: customerData.address || null
-            }).eq('id', id).select('*').single();
+            }).eq('organization_id', organizationId).eq('id', id).select('*').single();
             if (error) throw error;
             return mapCustomer(data);
         }
@@ -132,7 +138,9 @@ export const customerService = {
     async delete(id) {
         const client = await getSupabaseClient();
         if (client) {
-            const { error } = await client.from('customers').update({ is_active: false }).eq('id', id);
+            const organizationId = organizationService.getCurrentOrganizationId();
+            if (!organizationId) throw new Error('Select a store before updating customers.');
+            const { error } = await client.from('customers').update({ is_active: false }).eq('organization_id', organizationId).eq('id', id);
             if (error) throw error;
             return true;
         }

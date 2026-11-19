@@ -58,7 +58,9 @@ export const supplierService = {
     async getAll() {
         const client = await getSupabaseClient();
         if (client) {
-            const { data, error } = await client.from('suppliers').select('*').eq('is_active', true).order('created_at', { ascending: false });
+            const organizationId = organizationService.getCurrentOrganizationId();
+            if (!organizationId) return [];
+            const { data, error } = await client.from('suppliers').select('*').eq('organization_id', organizationId).eq('is_active', true).order('created_at', { ascending: false });
             if (error) throw error;
             return (data || []).map(mapSupplier);
         }
@@ -83,8 +85,10 @@ export const supplierService = {
     async create(supplierData) {
         const client = await getSupabaseClient();
         if (client) {
+            const organizationId = organizationService.getCurrentOrganizationId();
+            if (!organizationId) throw new Error('Select a store before creating suppliers.');
             const { data, error } = await client.from('suppliers').insert({
-                organization_id: organizationService.getCurrentOrganizationId(),
+                organization_id: organizationId,
                 name: supplierData.name,
                 email: supplierData.email || null,
                 phone: supplierData.phone,
@@ -116,6 +120,8 @@ export const supplierService = {
     async update(id, supplierData) {
         const client = await getSupabaseClient();
         if (client) {
+            const organizationId = organizationService.getCurrentOrganizationId();
+            if (!organizationId) throw new Error('Select a store before updating suppliers.');
             const { data, error } = await client.from('suppliers').update({
                 name: supplierData.name,
                 email: supplierData.email || null,
@@ -124,7 +130,7 @@ export const supplierService = {
                 contact_person: supplierData.contactPerson || null,
                 website: supplierData.website || null,
                 tax_id: supplierData.taxId || null
-            }).eq('id', id).select('*').single();
+            }).eq('organization_id', organizationId).eq('id', id).select('*').single();
             if (error) throw error;
             return mapSupplier(data);
         }
@@ -143,7 +149,9 @@ export const supplierService = {
     async delete(id) {
         const client = await getSupabaseClient();
         if (client) {
-            const { error } = await client.from('suppliers').update({ is_active: false }).eq('id', id);
+            const organizationId = organizationService.getCurrentOrganizationId();
+            if (!organizationId) throw new Error('Select a store before updating suppliers.');
+            const { error } = await client.from('suppliers').update({ is_active: false }).eq('organization_id', organizationId).eq('id', id);
             if (error) throw error;
             return true;
         }

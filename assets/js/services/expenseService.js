@@ -18,7 +18,9 @@ function mapExpense(row) {
 }
 
 async function resolveCategoryId(client, category) {
-    const { data } = await client.from('expense_categories').select('id').eq('name', category).maybeSingle();
+    const organizationId = organizationService.getCurrentOrganizationId();
+    if (!organizationId) throw new Error('Select a store before managing expenses.');
+    const { data } = await client.from('expense_categories').select('id').eq('organization_id', organizationId).eq('name', category).maybeSingle();
     if (data?.id) return data.id;
     const { data: created, error } = await client.from('expense_categories').insert({
         name: category,
@@ -61,7 +63,9 @@ export const expenseService = {
     async getAll() {
         const client = await getSupabaseClient();
         if (client) {
-            const { data, error } = await client.from('expenses').select('*, expense_categories(name)').eq('branch_id', branchService.getCurrentBranchId()).order('expense_date', { ascending: false });
+            const organizationId = organizationService.getCurrentOrganizationId();
+            if (!organizationId) return [];
+            const { data, error } = await client.from('expenses').select('*, expense_categories(name)').eq('organization_id', organizationId).eq('branch_id', branchService.getCurrentBranchId()).order('expense_date', { ascending: false });
             if (error) throw error;
             return (data || []).map(mapExpense);
         }
@@ -76,9 +80,11 @@ export const expenseService = {
     async create(expenseData) {
         const client = await getSupabaseClient();
         if (client) {
+            const organizationId = organizationService.getCurrentOrganizationId();
+            if (!organizationId) throw new Error('Select a store before creating expenses.');
             const { data: userData } = await client.auth.getUser();
             const { data, error } = await client.from('expenses').insert({
-                organization_id: organizationService.getCurrentOrganizationId(),
+                organization_id: organizationId,
                 branch_id: branchService.getCurrentBranchId(),
                 category_id: await resolveCategoryId(client, expenseData.category),
                 description: expenseData.description,
@@ -108,6 +114,8 @@ export const expenseService = {
     async update(id, expenseData) {
         const client = await getSupabaseClient();
         if (client) {
+            const organizationId = organizationService.getCurrentOrganizationId();
+            if (!organizationId) throw new Error('Select a store before updating expenses.');
             const { data, error } = await client.from('expenses').update({
                 category_id: await resolveCategoryId(client, expenseData.category),
                 description: expenseData.description,
@@ -116,7 +124,7 @@ export const expenseService = {
                 reference_number: expenseData.receipt || null,
                 expense_date: expenseData.date,
                 status: expenseData.status || 'paid'
-            }).eq('id', id).select('*, expense_categories(name)').single();
+            }).eq('organization_id', organizationId).eq('branch_id', branchService.getCurrentBranchId()).eq('id', id).select('*, expense_categories(name)').single();
             if (error) throw error;
             return mapExpense(data);
         }
@@ -135,7 +143,9 @@ export const expenseService = {
     async delete(id) {
         const client = await getSupabaseClient();
         if (client) {
-            const { error } = await client.from('expenses').delete().eq('id', id);
+            const organizationId = organizationService.getCurrentOrganizationId();
+            if (!organizationId) throw new Error('Select a store before updating expenses.');
+            const { error } = await client.from('expenses').delete().eq('organization_id', organizationId).eq('branch_id', branchService.getCurrentBranchId()).eq('id', id);
             if (error) throw error;
             return true;
         }

@@ -1,5 +1,4 @@
 import CONSTANTS from '../config/constants.js';
-import { productService } from './productService.js';
 import { inventoryService } from './inventoryService.js';
 import { getSupabaseClient } from './supabase.js';
 import { organizationService, branchService } from './organizationService.js';
@@ -78,12 +77,15 @@ export const salesService = {
     async getAll() {
         const client = await getSupabaseClient();
         if (client) {
-            const { data, error } = await client.from('sales').select('*, sale_items(*)').eq('branch_id', branchService.getCurrentBranchId()).order('created_at', { ascending: false });
+            const organizationId = organizationService.getCurrentOrganizationId();
+            if (!organizationId) return [];
+            const { data, error } = await client.from('sales').select('*, sale_items(*)').eq('organization_id', organizationId).eq('branch_id', branchService.getCurrentBranchId()).order('created_at', { ascending: false });
             if (error) throw error;
             return (data || []).map(row => mapSale(row, (row.sale_items || []).map(item => ({
                 productId: item.product_id,
                 name: item.product_name,
                 price: Number(item.unit_price),
+                cost: Number(item.cost_price) || 0,
                 quantity: Number(item.quantity),
                 total: Number(item.total)
             }))));
@@ -95,64 +97,77 @@ export const salesService = {
     async createSale({ items, paymentMethod, customerName, cashier }) {
         const client = await getSupabaseClient();
         if (client) {
+            const organizationId = organizationService.getCurrentOrganizationId();
+            const branchId = branchService.getCurrentBranchId();
+            if (!organizationId || !branchId) throw new Error('Select a store and branch before processing sales.');
             await subscriptionService.assertCanCreate('sale');
             const { data: authData } = await client.auth.getUser();
-            const subtotal = items.reduce((sum, item) => sum + (Number(item.price) * Number(item.quantity)), 0);
             const settings = JSON.parse(localStorage.getItem(CONSTANTS.STORAGE_KEYS.SETTINGS)) || CONSTANTS.DEFAULT_SETTINGS;
             const taxRate = Number(settings.taxRate || 0) / 100;
-            const tax = subtotal * taxRate;
-            const total = subtotal + tax;
-            const saleNumber = `S-${Date.now()}`;
             const payment = String(paymentMethod || 'cash').toLowerCase().replaceAll(' ', '_');
-            const quantities = new Map();
-            items.forEach(item => quantities.set(item.productId, (quantities.get(item.productId) || 0) + Number(item.quantity)));
-            for (const [productId, quantity] of quantities) {
-                const product = await productService.getById(productId);
-                if (!product || Number(product.stock) < quantity) {
-                    throw new Error(`Insufficient stock for ${product?.name || 'a product'} at this branch.`);
-                }
+            const saleFingerprint = JSON.stringify({
+                organizationId, branchId, payment, customerName: customerName || 'Walk-in Customer',
+                items: items.map(item => [item.productId, Number(item.quantity)])
+            });
+            let pendingCheckout;
+            try { pendingCheckout = JSON.parse(sessionStorage.getItem('joetech_pending_checkout') || 'null'); } catch { pendingCheckout = null; }
+            if (pendingCheckout?.fingerprint !== saleFingerprint) {
+                pendingCheckout = {
+                    fingerprint: saleFingerprint,
+                    id: crypto.randomUUID(),
+                    saleNumber: `S-${Date.now()}`
+                };
+                sessionStorage.setItem('joetech_pending_checkout', JSON.stringify(pendingCheckout));
             }
 
-            const { data: sale, error: saleError } = await client.from('sales').insert({
-                organization_id: organizationService.getCurrentOrganizationId(),
-                branch_id: branchService.getCurrentBranchId(),
-                sale_number: saleNumber,
-                customer_name: customerName || 'Walk-in Customer',
-                user_id: authData?.user?.id || null,
-                cashier_name: cashier || authData?.user?.email || 'System',
-                subtotal,
-                tax_amount: tax,
-                total,
-                payment_method: ['cash', 'credit_card', 'mobile_transfer', 'check', 'wallet'].includes(payment) ? payment : 'cash',
-                payment_status: 'paid'
-            }).select('*').single();
+            const { error: checkoutError } = await client.rpc('create_sale_with_inventory', {
+                p_sale_id: pendingCheckout.id,
+                p_sale_number: pendingCheckout.saleNumber,
+                p_organization_id: organizationId,
+                p_branch_id: branchId,
+                p_customer_name: customerName || 'Walk-in Customer',
+                p_cashier_name: cashier || authData?.user?.email || 'System',
+                p_tax_rate: taxRate,
+                p_payment_method: ['cash', 'credit_card', 'mobile_transfer', 'check', 'wallet'].includes(payment) ? payment : 'cash',
+                p_items: items.map(item => ({ productId: item.productId, quantity: Number(item.quantity) }))
+            });
+            if (checkoutError) {
+                // If the response was lost after the database committed, recover
+                // the completed sale instead of deleting a valid transaction.
+                const { data: recoveredSale, error: recoveryError } = await client.from('sales')
+                    .select('*, sale_items(*)')
+                    .eq('organization_id', organizationId)
+                    .eq('branch_id', branchId)
+                    .eq('id', pendingCheckout.id)
+                    .maybeSingle();
+                if (recoveryError || !recoveredSale) throw checkoutError;
+                sessionStorage.removeItem('joetech_pending_checkout');
+                return mapSale(recoveredSale, (recoveredSale.sale_items || []).map(item => ({
+                    productId: item.product_id,
+                    name: item.product_name,
+                    price: Number(item.unit_price),
+                    cost: Number(item.cost_price) || 0,
+                    quantity: Number(item.quantity),
+                    total: Number(item.total)
+                })));
+            }
+
+            const { data: sale, error: saleError } = await client.from('sales')
+                .select('*, sale_items(*)')
+                .eq('organization_id', organizationId)
+                .eq('branch_id', branchId)
+                .eq('id', pendingCheckout.id)
+                .single();
             if (saleError) throw saleError;
-
-            const saleItems = items.map(item => ({
-                organization_id: organizationService.getCurrentOrganizationId(),
-                branch_id: branchService.getCurrentBranchId(),
-                sale_id: sale.id,
-                product_id: item.productId,
-                product_name: item.name,
-                product_sku: item.sku || null,
+            sessionStorage.removeItem('joetech_pending_checkout');
+            return mapSale(sale, (sale.sale_items || []).map(item => ({
+                productId: item.product_id,
+                name: item.product_name,
+                price: Number(item.unit_price),
+                cost: Number(item.cost_price) || 0,
                 quantity: Number(item.quantity),
-                unit_price: Number(item.price),
-                cost_price: Number(item.cost || 0),
-                total: Number(item.price) * Number(item.quantity)
-            }));
-            const { error: itemError } = await client.from('sale_items').insert(saleItems);
-            if (itemError) {
-                await client.from('sales').delete().eq('id', sale.id);
-                throw itemError;
-            }
-            try {
-                const { error: inventoryError } = await client.rpc('record_sale_inventory', { p_sale_id: sale.id });
-                if (inventoryError) throw inventoryError;
-            } catch (error) {
-                await client.from('sales').delete().eq('id', sale.id);
-                throw error;
-            }
-            return mapSale({ ...sale, sale_number: saleNumber }, items);
+                total: Number(item.total)
+            })));
         }
 
         this.init();

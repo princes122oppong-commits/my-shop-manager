@@ -89,9 +89,11 @@ export const reportService = {
         sales.forEach(sale => {
             sale.items.forEach(item => {
                 const product = products.find(p => p.id === item.productId);
-                if (product) {
-                    totalCost += product.cost * item.quantity;
-                }
+                const hasCostSnapshot = item.cost !== undefined && item.cost !== null && Number.isFinite(Number(item.cost));
+                const unitCost = hasCostSnapshot
+                    ? Number(item.cost)
+                    : Number(product?.cost || 0);
+                totalCost += unitCost * Number(item.quantity || 0);
             });
         });
 

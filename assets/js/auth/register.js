@@ -2,10 +2,24 @@ import { showAlert } from '../components/alert.js';
 import { authService } from '../services/authService.js';
 import { addAuditLog } from '../utils/helpers.js';
 import ROUTES from '../config/routes.js';
+import { isSupabaseConfigured } from '../services/supabase.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('register-form');
     if (!form) return;
+    if (isSupabaseConfigured()) {
+        const roleField = document.getElementById('role');
+        const roleGroup = roleField?.closest('.form-group');
+        if (roleGroup) {
+            roleGroup.hidden = true;
+            roleField.required = false;
+            roleField.value = 'cashier';
+            const note = document.createElement('p');
+            note.className = 'text-muted';
+            note.textContent = 'After signing up, create your store to become its owner. Staff join an existing store by invitation.';
+            roleGroup.after(note);
+        }
+    }
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();

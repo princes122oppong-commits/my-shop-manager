@@ -36,9 +36,12 @@ export const inventoryService = {
     async getMovements() {
         const client = await getSupabaseClient();
         if (client) {
+            const organizationId = organizationService.getCurrentOrganizationId();
+            if (!organizationId) return [];
             const { data, error } = await client
                 .from('inventory_movements')
                 .select('*, products(name)')
+                .eq('organization_id', organizationId)
                 .eq('branch_id', branchService.getCurrentBranchId())
                 .order('created_at', { ascending: false });
             if (error) throw error;
@@ -60,20 +63,26 @@ export const inventoryService = {
     async addMovement({ productId, type, quantity, reason, user }) {
         const client = await getSupabaseClient();
         if (client) {
+            const organizationId = organizationService.getCurrentOrganizationId();
+            const branchId = branchService.getCurrentBranchId();
+            if (!organizationId || !branchId) throw new Error('Select a store and branch before adjusting stock.');
+            if (!['IN', 'OUT'].includes(type)) throw new Error('Stock adjustment type must be IN or OUT.');
+            if (!Number.isInteger(Number(quantity)) || Number(quantity) <= 0) throw new Error('Quantity must be a positive whole number.');
             const product = await productService.getById(productId);
             if (!product) return null;
             const { data: authData } = await client.auth.getUser();
-            const { data, error } = await client.from('inventory_movements').insert({
-                organization_id: organizationService.getCurrentOrganizationId(),
-                branch_id: branchService.getCurrentBranchId(),
-                product_id: productId,
-                type,
-                quantity: Number(quantity),
-                reason: reason || null,
-                user_id: authData?.user?.id || null
-            }).select('*, products(name)').single();
+            const { data: movementId, error } = await client.rpc('adjust_branch_inventory', {
+                p_organization_id: organizationId,
+                p_branch_id: branchId,
+                p_product_id: productId,
+                p_type: type,
+                p_quantity: Number(quantity),
+                p_reason: reason || null
+            });
             if (error) throw error;
-            await productService.updateStock(productId, type === 'IN' ? Number(quantity) : -Number(quantity));
+            const { data, error: movementError } = await client.from('inventory_movements')
+                .select('*, products(name)').eq('organization_id', organizationId).eq('branch_id', branchId).eq('id', movementId).single();
+            if (movementError) throw movementError;
             return {
                 id: data.id,
                 productId: data.product_id,
