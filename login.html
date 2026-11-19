@@ -80,7 +80,17 @@
             document.body.appendChild(notice);
         }
     </script>
-    <script type="module" src="assets/js/auth/login.js"></script>
+    <script>
+        // ES modules require HTTP(S). Avoid requesting the module at all when
+        // someone opens this file directly, so the browser does not emit a
+        // misleading CORS error before showing the startup instructions.
+        if (window.location.protocol !== 'file:') {
+            const loginScript = document.createElement('script');
+            loginScript.type = 'module';
+            loginScript.src = 'assets/js/auth/login.js';
+            document.body.appendChild(loginScript);
+        }
+    </script>
 </body>
 
 </html>
